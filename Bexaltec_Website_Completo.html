@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Bexaltec – Soluciones Informáticas</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--navy:#0a1628;--navy2:#0d2044;--green:#00e676;--green2:#00c853;--green3:#00796b;--silver:#b0bec5;--silver2:#cfd8dc;--text:#e8edf5;--text2:#90a4ae;--text3:#546e7a;--card:#0d1f3a;--card2:#0a1a30;--border:rgba(176,190,197,0.12);--border-g:rgba(0,230,118,0.25);--glow:rgba(0,230,118,0.08)}
+*{box-sizing:border-box;margin:0;padding:0;scroll-behavior:smooth}
+body{background:var(--navy);color:var(--text);font-family:'Exo 2',sans-serif;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--navy2)}::-webkit-scrollbar-thumb{background:var(--green3);border-radius:3px}
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,22,40,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;height:64px;gap:2rem}
+.nav-logo{display:flex;align-items:center;gap:.75rem;text-decoration:none;flex-shrink:0}
+.nav-bx{width:36px;height:36px;border:1.5px solid var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:14px;color:var(--green);letter-spacing:1px}
+.nav-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:18px;letter-spacing:2px;background:linear-gradient(90deg,var(--green),var(--silver));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;align-items:center;gap:1.5rem;flex:1}
+.nav-links a{color:var(--text2);text-decoration:none;font-size:13px;letter-spacing:.5px;transition:color .2s}
+.nav-links a:hover{color:var(--green)}
+.nav-cta{margin-left:auto;background:var(--glow);border:1px solid var(--border-g);color:var(--green);font-size:12px;padding:8px 20px;border-radius:20px;cursor:pointer;transition:all .2s;font-family:'Exo 2',sans-serif;text-decoration:none;white-space:nowrap;letter-spacing:.5px}
+.nav-cta:hover{background:rgba(0,230,118,0.2);border-color:var(--green)}
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:80px 2rem 4rem}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(0,230,118,0.06) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(0,100,255,0.05) 0%,transparent 40%)}
+.circuit-bg{position:absolute;inset:0;width:100%;height:100%;opacity:.07;pointer-events:none}
+.hero-content{text-align:center;position:relative;z-index:2;max-width:860px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.25);color:var(--green);font-size:11px;padding:6px 16px;border-radius:20px;letter-spacing:2px;margin-bottom:2rem;text-transform:uppercase}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.hero h1{font-family:'Rajdhani',sans-serif;font-size:clamp(56px,9vw,92px);font-weight:700;letter-spacing:4px;line-height:.95;background:linear-gradient(135deg,var(--green) 0%,#e8edf5 45%,var(--silver) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.75rem}
+.hero-sub{font-size:clamp(12px,2vw,15px);color:var(--text2);letter-spacing:5px;text-transform:uppercase;margin-bottom:1.5rem}
+.hero-desc{font-size:clamp(14px,1.8vw,17px);color:var(--text2);line-height:1.75;max-width:640px;margin:0 auto 2.5rem}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn-p{background:var(--glow);border:1px solid var(--border-g);color:var(--green);padding:14px 32px;border-radius:8px;font-family:'Exo 2',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .25s;text-decoration:none;letter-spacing:.5px}
+.btn-p:hover{background:rgba(0,230,118,0.2);border-color:var(--green);transform:translateY(-2px)}
+.btn-s{background:transparent;border:1px solid var(--border);color:var(--silver2);padding:14px 32px;border-radius:8px;font-family:'Exo 2',sans-serif;font-size:14px;cursor:pointer;transition:all .25s;text-decoration:none;letter-spacing:.5px}
+.btn-s:hover{border-color:var(--silver);background:rgba(176,190,197,0.06);transform:translateY(-2px)}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-top:3.5rem;max-width:700px;margin-left:auto;margin-right:auto}
+.hstat{text-align:center;padding:1.1rem .75rem;background:rgba(13,31,58,0.7);border:1px solid var(--border);border-radius:12px}
+.hstat-n{font-family:'Rajdhani',sans-serif;font-size:30px;font-weight:700;color:var(--green);line-height:1}
+.hstat-l{font-size:10px;color:var(--text3);margin-top:4px;letter-spacing:.5px}
+section{padding:5rem 2rem}
+.container{max-width:1100px;margin:0 auto}
+.sec-badge{display:inline-flex;align-items:center;gap:8px;font-size:11px;letter-spacing:3px;color:var(--green);text-transform:uppercase;margin-bottom:.6rem}
+.sec-badge::before{content:'';width:16px;height:2px;background:var(--green)}
+.sec-title{font-family:'Rajdhani',sans-serif;font-size:clamp(26px,4vw,38px);font-weight:700;color:var(--text);margin-bottom:.6rem;letter-spacing:1px}
+.sec-desc{font-size:14px;color:var(--text2);line-height:1.7;max-width:580px;margin-bottom:2.5rem}
+#servicos{background:linear-gradient(180deg,var(--navy) 0%,rgba(13,32,68,0.3) 100%)}
+.stabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:1.75rem}
+.stab{font-size:12px;padding:7px 16px;border-radius:20px;border:1px solid var(--border);color:var(--text3);cursor:pointer;transition:all .2s;background:transparent;font-family:'Exo 2',sans-serif;letter-spacing:.4px}
+.stab:hover,.stab.active{background:var(--glow);border-color:var(--border-g);color:var(--green)}
+.spanel{display:none}.spanel.show{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1rem}
+.scard{background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:14px;padding:1.4rem;transition:all .25s}
+.scard:hover{border-color:var(--border-g);transform:translateY(-3px)}
+.scard-ico{font-size:26px;margin-bottom:.85rem}
+.scard-t{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:.3rem}
+.scard-d{font-size:12px;color:var(--text3);line-height:1.6}
+.stag-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:.65rem}
+.stag{font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(0,230,118,0.07);border:1px solid rgba(0,230,118,0.18);color:var(--green2)}
+.stag.b{background:rgba(0,150,255,0.07);border-color:rgba(0,150,255,0.18);color:#42a5f5}
+.stag.s{background:rgba(176,190,197,0.07);border-color:rgba(176,190,197,0.18);color:var(--silver)}
+.stag.o{background:rgba(255,112,67,0.07);border-color:rgba(255,112,67,0.18);color:#ff7043}
+#sobre{background:linear-gradient(135deg,rgba(13,32,68,0.5) 0%,rgba(10,22,40,.8) 100%)}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+.akpis{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;margin-top:1.75rem}
+.akpi{background:var(--glow);border:1px solid var(--border-g);border-radius:12px;padding:1.1rem;text-align:center}
+.akpi-n{font-family:'Rajdhani',sans-serif;font-size:34px;font-weight:700;color:var(--green);line-height:1}
+.akpi-l{font-size:10px;color:var(--text3);margin-top:3px}
+.about-items{display:flex;flex-direction:column;gap:.85rem}
+.aitem{display:flex;align-items:flex-start;gap:.85rem;padding:.9rem 1.1rem;background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:12px}
+.aico{width:36px;height:36px;border-radius:8px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.atxt .t{font-size:13px;font-weight:600;color:var(--silver2);margin-bottom:1px}
+.atxt .d{font-size:11px;color:var(--text3);line-height:1.5}
+#parceiros{background:var(--navy)}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.85rem}
+.vcard{background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center;transition:all .25s}
+.vcard:hover{border-color:var(--border-g);transform:translateY(-2px)}
+.vdot{width:9px;height:9px;border-radius:50%;margin:0 auto .65rem}
+.vname{font-size:12px;font-weight:600;color:var(--silver2);margin-bottom:2px}
+.vtype{font-size:10px;color:var(--text3)}
+#metodologia{background:linear-gradient(135deg,rgba(13,32,68,.4) 0%,var(--navy) 100%)}
+.psteps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative;margin-top:1.75rem}
+.psteps::before{content:'';position:absolute;top:27px;left:5%;right:5%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,230,118,.3),transparent)}
+.pstep{text-align:center;position:relative;z-index:1;padding:.4rem}
+.pstep-n{width:54px;height:54px;border-radius:50%;border:2px solid rgba(0,230,118,.4);background:var(--navy);display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;font-family:'Rajdhani',sans-serif;font-size:19px;font-weight:700;color:var(--green);transition:all .3s}
+.pstep:hover .pstep-n{background:rgba(0,230,118,.1);border-color:var(--green)}
+.pstep-t{font-size:12px;font-weight:600;color:var(--silver2);margin-bottom:.25rem}
+.pstep-d{font-size:10px;color:var(--text3);line-height:1.5}
+#caes{background:var(--navy)}
+.caegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:.7rem}
+.caecard{background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:10px;padding:.9rem 1.1rem;display:flex;align-items:flex-start;gap:.85rem;transition:all .2s}
+.caecard:hover{border-color:var(--border-g)}
+.caeref{font-family:'Rajdhani',sans-serif;font-size:11px;color:rgba(0,230,118,.5);letter-spacing:1px;flex-shrink:0;min-width:50px;padding-top:1px}
+.caename{font-size:12px;color:var(--silver2);line-height:1.5}
+#orcamento{background:linear-gradient(135deg,rgba(13,32,68,.6) 0%,rgba(10,22,40,.9) 100%)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;align-items:start}
+.fcard{background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:16px;padding:1.75rem}
+.ftitle{font-family:'Rajdhani',sans-serif;font-size:21px;font-weight:600;color:var(--text);margin-bottom:.25rem}
+.fsub{font-size:12px;color:var(--text3);margin-bottom:1.5rem;line-height:1.6}
+.fg{margin-bottom:1.1rem}
+.fl{font-size:11px;color:var(--silver);letter-spacing:.5px;margin-bottom:.35rem;display:block}
+.fi{width:100%;background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:8px;padding:10px 13px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--border-g)}
+.fi::placeholder{color:var(--text3)}
+select.fi option{background:var(--card);color:var(--text)}
+textarea.fi{resize:vertical;min-height:95px;line-height:1.6}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+.fchecks{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.35rem}
+.fcheck{display:flex;align-items:center;gap:.4rem;cursor:pointer}
+.fcheck input{accent-color:var(--green);width:13px;height:13px}
+.fcheck span{font-size:11px;color:var(--text2)}
+.fsub-btn{width:100%;background:var(--glow);border:1px solid var(--border-g);color:var(--green);font-family:'Exo 2',sans-serif;font-size:14px;font-weight:600;padding:13px;border-radius:8px;cursor:pointer;transition:all .25s;letter-spacing:.5px;margin-top:.4rem}
+.fsub-btn:hover{background:rgba(0,230,118,.2);border-color:var(--green)}
+.fsub-btn:active{transform:scale(.98)}
+.fsuccess{display:none;text-align:center;padding:2rem}
+.fsuccess-ico{font-size:46px;margin-bottom:.75rem}
+.fsuccess-t{font-family:'Rajdhani',sans-serif;font-size:21px;color:var(--green);margin-bottom:.4rem}
+.fsuccess-d{font-size:12px;color:var(--text3);line-height:1.7}
+.iitems{display:flex;flex-direction:column;gap:.85rem}
+.iitem{display:flex;align-items:flex-start;gap:.7rem;padding:.9rem 1.1rem;background:var(--glow);border:1px solid var(--border-g);border-radius:10px}
+.iico{font-size:18px;flex-shrink:0}
+.itxt .t{font-size:13px;font-weight:600;color:var(--silver2);margin-bottom:1px}
+.itxt .d{font-size:11px;color:var(--text3);line-height:1.5}
+#contacto{background:var(--navy)}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.ccard{background:linear-gradient(145deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:14px;padding:1.4rem;text-align:center;transition:all .25s}
+.ccard:hover{border-color:var(--border-g);transform:translateY(-3px)}
+.cico{font-size:30px;margin-bottom:.85rem}
+.ctit{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--silver2);margin-bottom:.35rem}
+.cdesc{font-size:12px;color:var(--text3);line-height:1.6}
+.cdesc a{color:var(--green);text-decoration:none}
+footer{background:var(--navy2);border-top:1px solid var(--border);padding:2rem;text-align:center}
+.flogo{font-family:'Rajdhani',sans-serif;font-size:21px;font-weight:700;letter-spacing:3px;background:linear-gradient(90deg,var(--green),var(--silver));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.35rem}
+.fcopy{font-size:11px;color:var(--text3)}
+@media(max-width:768px){.nav-links{display:none}.hero-stats,.about-grid,.fgrid,.cgrid{grid-template-columns:1fr 1fr}.psteps{grid-template-columns:1fr 1fr}.psteps::before{display:none}}
+@media(max-width:480px){.hero-stats,.cgrid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="#" class="nav-logo"><div class="nav-bx">BX</div><div class="nav-name">BEXALTEC</div></a>
+  <div class="nav-links">
+    <a href="#servicos">Serviços</a>
+    <a href="#sobre">Sobre</a>
+    <a href="#parceiros">Fabricantes</a>
+    <a href="#metodologia">Metodologia</a>
+    <a href="#caes">CAEs</a>
+    <a href="#contacto">Contacto</a>
+  </div>
+  <a href="#orcamento" class="nav-cta">Pedir Orçamento ↗</a>
+</nav>
+
+<section class="hero" id="inicio">
+  <div class="hero-bg"></div>
+  <svg class="circuit-bg" viewBox="0 0 1200 700" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#00e676" stroke-width="1" fill="none">
+      <line x1="0" y1="200" x2="200" y2="200"/><line x1="200" y1="200" x2="200" y2="400"/>
+      <line x1="200" y1="100" x2="500" y2="100"/><line x1="500" y1="100" x2="500" y2="300"/>
+      <line x1="300" y1="400" x2="700" y2="400"/><line x1="700" y1="400" x2="700" y2="600"/>
+      <line x1="800" y1="50" x2="800" y2="350"/><line x1="800" y1="350" x2="1100" y2="350"/>
+      <line x1="900" y1="200" x2="1200" y2="200"/><line x1="1000" y1="500" x2="1000" y2="700"/>
+      <line x1="400" y1="600" x2="700" y2="600"/><line x1="100" y1="550" x2="400" y2="550"/>
+      <line x1="600" y1="250" x2="800" y2="250"/><line x1="1100" y1="150" x2="1100" y2="500"/>
+      <circle cx="200" cy="200" r="4" fill="#00e676"/><circle cx="500" cy="100" r="4" fill="#00e676"/>
+      <circle cx="700" cy="400" r="4" fill="#00e676"/><circle cx="800" cy="350" r="4" fill="#00e676"/>
+      <circle cx="1100" cy="350" r="6" fill="none" stroke="#00e676"/>
+      <circle cx="200" cy="100" r="3" fill="#00e676"/><circle cx="1000" cy="500" r="4" fill="#00e676"/>
+      <circle cx="600" cy="250" r="3" fill="#00e676"/>
+    </g>
+  </svg>
+  <div class="hero-content">
+    <div class="hero-badge">Luanda · Angola · Soluções TI</div>
+    <h1>BEXALTEC</h1>
+    <div class="hero-sub">Soluciones Informáticas</div>
+    <p class="hero-desc">Consultoria especializada em infraestrutura de TI, redes, segurança eletrônica, desenvolvimento de software e soluções digitais para empresas e instituições angolanas.</p>
+    <div class="hero-btns">
+      <a href="#orcamento" class="btn-p">Solicitar Orçamento ↗</a>
+      <a href="#servicos" class="btn-s">Ver Serviços</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-n">11</div><div class="hstat-l">CAEs Ativas</div></div>
+      <div class="hstat"><div class="hstat-n">360°</div><div class="hstat-l">Cobertura TI</div></div>
+      <div class="hstat"><div class="hstat-n">L2/L3</div><div class="hstat-l">Networking</div></div>
+      <div class="hstat"><div class="hstat-n">24/7</div><div class="hstat-l">Suporte</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="servicos">
+  <div class="container">
+    <div class="sec-badge">Portfólio</div>
+    <h2 class="sec-title">Serviços &amp; Soluções</h2>
+    <p class="sec-desc">Cobertura completa do ecossistema de tecnologia — da infraestrutura física ao software, conectividade e segurança eletrônica.</p>
+    <div class="stabs">
+      <button class="stab active" onclick="showS('infra',this)">Infra &amp; Redes</button>
+      <button class="stab" onclick="showS('seg',this)">Segurança Eletr.</button>
+      <button class="stab" onclick="showS('sw',this)">Software &amp; Dev</button>
+      <button class="stab" onclick="showS('web',this)">Web &amp; Hosting</button>
+      <button class="stab" onclick="showS('isp',this)">Internet &amp; Domínio</button>
+      <button class="stab" onclick="showS('man',this)">Manutenção</button>
+      <button class="stab" onclick="showS('com',this)">Comércio &amp; Import.</button>
+    </div>
+    <div class="spanel show" id="p-infra">
+      <div class="scard"><div class="scard-ico">📋</div><div class="scard-t">Documentação Técnica</div><div class="scard-d">Levantamento de infraestrutura, diagramas de rede, inventário de ativos, runbooks e documentação padronizada.</div><div class="stag-row"><span class="stag">Topologia</span><span class="stag">Inventário</span><span class="stag">Runbooks</span></div></div>
+      <div class="scard"><div class="scard-ico">⚙️</div><div class="scard-t">Configuração Cisco</div><div class="scard-d">Switches Catalyst/Nexus, roteadores ISR/ASR. VLANs, STP, LACP, OSPF, BGP, QoS e ACLs.</div><div class="stag-row"><span class="stag">VLAN</span><span class="stag">STP/RSTP</span><span class="stag">OSPF/BGP</span><span class="stag">QoS</span></div></div>
+      <div class="scard"><div class="scard-ico">📡</div><div class="scard-t">Unifi &amp; Ubiquiti</div><div class="scard-d">APs Wi-Fi 6/6E, switches USW, UDM Pro, UniFi Controller. Roaming seamless e segmentação VLAN.</div><div class="stag-row"><span class="stag b">Wi-Fi 6</span><span class="stag b">UDM Pro</span><span class="stag b">USW</span><span class="stag b">UniFi OS</span></div></div>
+      <div class="scard"><div class="scard-ico">🏗️</div><div class="scard-t">Infraestrutura Completa</div><div class="scard-d">Projeto e implantação: servidores, storage, virtualização VMware/Proxmox, backup e alta disponibilidade.</div><div class="stag-row"><span class="stag b">Servidores</span><span class="stag b">VMware</span><span class="stag b">Storage</span></div></div>
+      <div class="scard"><div class="scard-ico">🔧</div><div class="scard-t">Outros Fabricantes</div><div class="scard-d">MikroTik, HP Aruba CX, Fortinet FortiGate NGFW e Huawei VRP. Suporte multivendor.</div><div class="stag-row"><span class="stag s">MikroTik</span><span class="stag s">Aruba</span><span class="stag s">Fortinet</span><span class="stag s">Huawei</span></div></div>
+      <div class="scard"><div class="scard-ico">📊</div><div class="scard-t">Monitoramento NOC</div><div class="scard-d">Implantação de Zabbix, PRTG e Grafana. Dashboards em tempo real e alertas proativos.</div><div class="stag-row"><span class="stag">Zabbix</span><span class="stag">PRTG</span><span class="stag">Grafana</span></div></div>
+    </div>
+    <div class="spanel" id="p-seg">
+      <div class="scard"><div class="scard-ico">📹</div><div class="scard-t">Videovigilância CCTV</div><div class="scard-d">Câmeras IP/analógicas 4K, NVR/DVR, gravação local e nuvem com acesso remoto via app.</div><div class="stag-row"><span class="stag o">IP Cam 4K</span><span class="stag o">NVR/DVR</span><span class="stag o">App móvel</span></div></div>
+      <div class="scard"><div class="scard-ico">🚪</div><div class="scard-t">Controle de Acesso</div><div class="scard-d">Biometria, RFID, catracas e torniquetes. Gestão centralizada de credenciais com integração CCTV.</div><div class="stag-row"><span class="stag o">Biométrico</span><span class="stag o">RFID</span><span class="stag o">Catraca</span></div></div>
+      <div class="scard"><div class="scard-ico">🚨</div><div class="scard-t">Alarme &amp; Intrusão</div><div class="scard-d">Centrais de alarme GSM/IP, sensores de movimento, abertura e fumo com monitoramento 24/7.</div><div class="stag-row"><span class="stag o">Central GSM</span><span class="stag o">Sensores</span><span class="stag o">24/7</span></div></div>
+      <div class="scard"><div class="scard-ico">🔒</div><div class="scard-t">Segurança Perimetral</div><div class="scard-d">Cerca elétrica, deteção perimetral e integração com CCTV para proteção total da instalação.</div><div class="stag-row"><span class="stag o">Perímetro</span><span class="stag o">Integrado</span></div></div>
+    </div>
+    <div class="spanel" id="p-sw">
+      <div class="scard"><div class="scard-ico">🛠️</div><div class="scard-t">Software sob Encomenda</div><div class="scard-d">ERP, CRM, POS e ferramentas internas personalizadas. Desenvolvimento full-stack com suporte incluído.</div><div class="stag-row"><span class="stag b">ERP</span><span class="stag b">CRM</span><span class="stag b">Python</span><span class="stag b">React</span></div></div>
+      <div class="scard"><div class="scard-ico">📱</div><div class="scard-t">Apps Mobile</div><div class="scard-d">Aplicações iOS/Android com React Native e Flutter. APIs, notificações push e suporte offline.</div><div class="stag-row"><span class="stag b">iOS</span><span class="stag b">Android</span><span class="stag b">Flutter</span></div></div>
+      <div class="scard"><div class="scard-ico">🔄</div><div class="scard-t">Transformação Digital</div><div class="scard-d">Digitalização de processos, migração para nuvem (AWS, Azure, GCP) e integração de sistemas.</div><div class="stag-row"><span class="stag b">Cloud</span><span class="stag b">AWS</span><span class="stag b">Azure</span></div></div>
+      <div class="scard"><div class="scard-ico">🔌</div><div class="scard-t">APIs &amp; Integrações</div><div class="scard-d">APIs REST e GraphQL. Conecta sistemas distintos numa plataforma unificada e eficiente.</div><div class="stag-row"><span class="stag b">REST API</span><span class="stag b">GraphQL</span><span class="stag b">Webhooks</span></div></div>
+    </div>
+    <div class="spanel" id="p-web">
+      <div class="scard"><div class="scard-ico">🏢</div><div class="scard-t">Sites Institucionais</div><div class="scard-d">Websites corporativos com CMS, SEO, design responsivo e integração com redes sociais.</div><div class="stag-row"><span class="stag s">CMS</span><span class="stag s">SEO</span><span class="stag s">Responsivo</span></div></div>
+      <div class="scard"><div class="scard-ico">🛒</div><div class="scard-t">E-commerce</div><div class="scard-d">Lojas virtuais com catálogo, pagamento multicurrency, logística e painel de gestão.</div><div class="stag-row"><span class="stag s">WooCommerce</span><span class="stag s">Pagamento</span></div></div>
+      <div class="scard"><div class="scard-ico">🖥️</div><div class="scard-t">Hospedagem Gerenciada</div><div class="scard-d">Hosting com SLA garantido, SSL, CDN, backup diário e suporte dedicado 24/7.</div><div class="stag-row"><span class="stag s">SSL</span><span class="stag s">CDN</span><span class="stag s">Backup</span></div></div>
+      <div class="scard"><div class="scard-ico">🎯</div><div class="scard-t">Landing Pages &amp; Funis</div><div class="scard-d">Páginas de alta conversão, funis de venda e integração com CRM e automação de marketing.</div><div class="stag-row"><span class="stag s">Conversão</span><span class="stag s">Analytics</span></div></div>
+    </div>
+    <div class="spanel" id="p-isp">
+      <div class="scard"><div class="scard-ico">🌍</div><div class="scard-t">Internet por Fibra</div><div class="scard-d">Conectividade empresarial dedicada via fibra óptica com IPs fixos e SLA garantido.</div><div class="stag-row"><span class="stag">Fibra</span><span class="stag">IP Fixo</span><span class="stag">SLA 99.9%</span></div></div>
+      <div class="scard"><div class="scard-ico">🔗</div><div class="scard-t">Links Dedicados &amp; MPLS</div><div class="scard-d">Links simétricos, interligação de filiais MPLS e gestão centralizada de conectividade multi-site.</div><div class="stag-row"><span class="stag">Simétrico</span><span class="stag">MPLS</span><span class="stag">Multi-site</span></div></div>
+      <div class="scard"><div class="scard-ico">🏷️</div><div class="scard-t">Domínios &amp; DNS</div><div class="scard-d">Registro de domínios .ao, .com, .net, .org com DNS gerenciado, SPF, DKIM e DMARC.</div><div class="stag-row"><span class="stag">.ao</span><span class="stag">.com</span><span class="stag">DNS</span></div></div>
+      <div class="scard"><div class="scard-ico">⚡</div><div class="scard-t">Email Corporativo</div><div class="scard-d">Email com domínio próprio, anti-spam, anti-phishing, backup e integração com Microsoft 365.</div><div class="stag-row"><span class="stag">Email</span><span class="stag">Anti-spam</span><span class="stag">M365</span></div></div>
+    </div>
+    <div class="spanel" id="p-man">
+      <div class="scard"><div class="scard-ico">💻</div><div class="scard-t">Reparação de Computadores</div><div class="scard-d">Diagnóstico e reparo de desktops, laptops e servidores. Substituição de componentes com garantia.</div><div class="stag-row"><span class="stag o">Desktop</span><span class="stag o">Laptop</span><span class="stag o">Servidor</span></div></div>
+      <div class="scard"><div class="scard-ico">🖨️</div><div class="scard-t">Periféricos</div><div class="scard-d">Manutenção de impressoras, scanners, monitores e outros equipamentos corporativos.</div><div class="stag-row"><span class="stag o">Impressora</span><span class="stag o">Scanner</span><span class="stag o">Monitor</span></div></div>
+      <div class="scard"><div class="scard-ico">🛡️</div><div class="scard-t">Manutenção Preventiva</div><div class="scard-d">Contratos com visitas programadas, limpeza, atualização de firmware e relatórios técnicos.</div><div class="stag-row"><span class="stag o">Contrato</span><span class="stag o">Preventiva</span></div></div>
+      <div class="scard"><div class="scard-ico">🌐</div><div class="scard-t">Suporte On-site &amp; Remoto</div><div class="scard-d">Resolução de incidentes de hardware, software e rede com SLA de resposta garantido.</div><div class="stag-row"><span class="stag o">On-site</span><span class="stag o">Remoto</span><span class="stag o">SLA</span></div></div>
+    </div>
+    <div class="spanel" id="p-com">
+      <div class="scard"><div class="scard-ico">🖥️</div><div class="scard-t">Venda de Equipamentos</div><div class="scard-d">Computadores, servidores, switches, roteadores, APs e câmeras das principais marcas globais.</div><div class="stag-row"><span class="stag s">Cisco</span><span class="stag s">HP</span><span class="stag s">Dell</span></div></div>
+      <div class="scard"><div class="scard-ico">📦</div><div class="scard-t">Importação Direta</div><div class="scard-d">Importação com gestão alfandegária, desembaraço, seguro de carga e entrega na sede do cliente.</div><div class="stag-row"><span class="stag s">Importação</span><span class="stag s">Alfândega</span></div></div>
+      <div class="scard"><div class="scard-ico">🤝</div><div class="scard-t">Representação de Marcas</div><div class="scard-d">Representação autorizada de Cisco, Ubiquiti, Dell, HP, Hikvision e Dahua em Angola.</div><div class="stag-row"><span class="stag s">Autorizado</span><span class="stag s">Garantia OEM</span></div></div>
+      <div class="scard"><div class="scard-ico">📋</div><div class="scard-t">Projetos Turnkey</div><div class="scard-d">Equipamentos + instalação + configuração + documentação + formação + garantia estendida.</div><div class="stag-row"><span class="stag s">Turnkey</span><span class="stag s">Formação</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="sobre">
+  <div class="container">
+    <div class="about-grid">
+      <div>
+        <div class="sec-badge">Quem Somos</div>
+        <h2 class="sec-title">Bexaltec – Excelência em TI</h2>
+        <p style="font-size:14px;color:var(--text2);line-height:1.75;margin-bottom:1.1rem">A Bexaltec é uma empresa angolana especializada em soluções de tecnologia da informação, com sede em Luanda. Com uma equipa multidisciplinar de profissionais certificados, oferecemos serviços adaptados à realidade das empresas e instituições angolanas.</p>
+        <p style="font-size:14px;color:var(--text2);line-height:1.75;margin-bottom:1.75rem">Da conceção à implementação, a Bexaltec acompanha o cliente em todas as etapas — garantindo qualidade, segurança e inovação em cada projeto.</p>
+        <div class="akpis">
+          <div class="akpi"><div class="akpi-n">11</div><div class="akpi-l">CAEs Registadas</div></div>
+          <div class="akpi"><div class="akpi-n">360°</div><div class="akpi-l">Cobertura TI</div></div>
+          <div class="akpi"><div class="akpi-n">24/7</div><div class="akpi-l">Suporte Ativo</div></div>
+          <div class="akpi"><div class="akpi-n">B2B</div><div class="akpi-l">Foco Empresarial</div></div>
+        </div>
+      </div>
+      <div class="about-items">
+        <div class="aitem"><div class="aico">🏅</div><div class="atxt"><div class="t">Equipa Certificada</div><div class="d">Profissionais com certificações Cisco (CCNA/CCNP), Ubiquiti, Microsoft e outros fabricantes.</div></div></div>
+        <div class="aitem"><div class="aico">🗺️</div><div class="atxt"><div class="t">Cobertura Nacional</div><div class="d">Projetos em todo o território angolano — presencialmente ou com parceiros locais.</div></div></div>
+        <div class="aitem"><div class="aico">🔄</div><div class="atxt"><div class="t">Suporte Pós-Implementação</div><div class="d">Contratos de manutenção, monitoramento remoto e helpdesk dedicado continuamente.</div></div></div>
+        <div class="aitem"><div class="aico">📄</div><div class="atxt"><div class="t">Documentação Completa</div><div class="d">Todos os projetos incluem documentação técnica, diagramas e runbooks para a equipa.</div></div></div>
+        <div class="aitem"><div class="aico">🔐</div><div class="atxt"><div class="t">Segurança em Primeiro</div><div class="d">Boas práticas de segurança em todos os serviços: redes, sistemas, dados e acesso físico.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="parceiros">
+  <div class="container">
+    <div class="sec-badge">Tecnologias</div>
+    <h2 class="sec-title">Fabricantes &amp; Plataformas</h2>
+    <p class="sec-desc">Trabalhamos com os principais fabricantes do mercado global de TI.</p>
+    <div class="vgrid">
+      <div class="vcard"><div class="vdot" style="background:#00e676"></div><div class="vname">Cisco Systems</div><div class="vtype">Catalyst · Nexus · ISR</div></div>
+      <div class="vcard"><div class="vdot" style="background:#42a5f5"></div><div class="vname">Ubiquiti / UniFi</div><div class="vtype">APs · USW · UDM Pro</div></div>
+      <div class="vcard"><div class="vdot" style="background:#ff7043"></div><div class="vname">MikroTik</div><div class="vtype">RouterOS · CHR · CCR</div></div>
+      <div class="vcard"><div class="vdot" style="background:#ab47bc"></div><div class="vname">HP / Aruba</div><div class="vtype">CX Series · AOS-CX</div></div>
+      <div class="vcard"><div class="vdot" style="background:#ffca28"></div><div class="vname">Fortinet</div><div class="vtype">FortiGate · SD-WAN</div></div>
+      <div class="vcard"><div class="vdot" style="background:#ef5350"></div><div class="vname">Huawei</div><div class="vtype">VRP · Campus · S-Series</div></div>
+      <div class="vcard"><div class="vdot" style="background:#26c6da"></div><div class="vname">Dell Technologies</div><div class="vtype">Servidores · Storage</div></div>
+      <div class="vcard"><div class="vdot" style="background:#66bb6a"></div><div class="vname">Hikvision</div><div class="vtype">CCTV · NVR · Acesso</div></div>
+      <div class="vcard"><div class="vdot" style="background:#ffa726"></div><div class="vname">Dahua</div><div class="vtype">IP Cam · DVR · IA</div></div>
+      <div class="vcard"><div class="vdot" style="background:#78909c"></div><div class="vname">VMware / Proxmox</div><div class="vtype">Virtualização · HCI</div></div>
+      <div class="vcard"><div class="vdot" style="background:#42a5f5"></div><div class="vname">Microsoft</div><div class="vtype">Azure · M365 · AD</div></div>
+      <div class="vcard"><div class="vdot" style="background:#ff7043"></div><div class="vname">AWS / GCP</div><div class="vtype">Cloud · IaaS · SaaS</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="metodologia">
+  <div class="container">
+    <div class="sec-badge">Metodologia</div>
+    <h2 class="sec-title">Como Trabalhamos</h2>
+    <p class="sec-desc">Abordagem estruturada em 5 fases para garantir qualidade, pontualidade e sucesso em cada projeto.</p>
+    <div class="psteps">
+      <div class="pstep"><div class="pstep-n">01</div><div class="pstep-t">Diagnóstico</div><div class="pstep-d">Levantamento de infraestrutura e mapeamento de necessidades e riscos</div></div>
+      <div class="pstep"><div class="pstep-n">02</div><div class="pstep-t">Proposta</div><div class="pstep-d">Proposta técnica com escopo, prazo, recursos e orçamento detalhado</div></div>
+      <div class="pstep"><div class="pstep-n">03</div><div class="pstep-t">Design</div><div class="pstep-d">Arquitetura da solução e diagramas técnicos aprovados pelo cliente</div></div>
+      <div class="pstep"><div class="pstep-n">04</div><div class="pstep-t">Implantação</div><div class="pstep-d">Execução com testes, configurações e formação da equipa cliente</div></div>
+      <div class="pstep"><div class="pstep-n">05</div><div class="pstep-t">Suporte</div><div class="pstep-d">Monitoramento contínuo, manutenção preventiva e helpdesk</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="caes">
+  <div class="container">
+    <div class="sec-badge">Registro Legal</div>
+    <h2 class="sec-title">Atividades Econômicas (CAEs)</h2>
+    <p class="sec-desc">11 CAEs registadas cobrindo integralmente o ecossistema de TI em Angola.</p>
+    <div class="caegrid">
+      <div class="caecard"><div class="caeref">CAE 01</div><div class="caename">Segurança eletrônica</div></div>
+      <div class="caecard"><div class="caeref">CAE 02</div><div class="caename">Desenvolvimento de software</div></div>
+      <div class="caecard"><div class="caeref">CAE 03</div><div class="caename">Desenvolvimento de soluções digitais</div></div>
+      <div class="caecard"><div class="caeref">CAE 04</div><div class="caename">Desenvolvimento de websites</div></div>
+      <div class="caecard"><div class="caeref">CAE 05</div><div class="caename">Hospedagem de websites</div></div>
+      <div class="caecard"><div class="caeref">CAE 06</div><div class="caename">Provedor de internet</div></div>
+      <div class="caecard"><div class="caeref">CAE 07</div><div class="caename">Venda de domínio</div></div>
+      <div class="caecard"><div class="caeref">CAE 08</div><div class="caename">Reparação e manutenção de computadores e equipamentos periféricos</div></div>
+      <div class="caecard"><div class="caeref">CAE 09</div><div class="caename">Desenvolvimento de programas de computador sob encomenda</div></div>
+      <div class="caecard"><div class="caeref">CAE 10</div><div class="caename">Consultoria em tecnologia da informação e atividades de intermediação</div></div>
+      <div class="caecard"><div class="caeref">CAE 11</div><div class="caename">Comércio, importação e representação de equipamentos de informática</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="orcamento">
+  <div class="container">
+    <div class="sec-badge">Contacto Comercial</div>
+    <h2 class="sec-title">Solicitar Orçamento</h2>
+    <p class="sec-desc">Preencha o formulário e a nossa equipa responde em até 24 horas com proposta personalizada.</p>
+    <div class="fgrid">
+      <div class="fcard">
+        <div class="ftitle">Formulário de Orçamento</div>
+        <div class="fsub">Campos com * são obrigatórios. Mais detalhes = proposta mais precisa.</div>
+        <form id="qForm" onsubmit="submitQ(event)">
+          <div class="frow">
+            <div class="fg"><label class="fl">Nome Completo *</label><input type="text" class="fi" placeholder="João Silva" required/></div>
+            <div class="fg"><label class="fl">Cargo / Função</label><input type="text" class="fi" placeholder="Diretor de TI"/></div>
+          </div>
+          <div class="fg"><label class="fl">Empresa / Organização *</label><input type="text" class="fi" placeholder="Nome da empresa" required/></div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Email Corporativo *</label><input type="email" class="fi" placeholder="email@empresa.ao" required/></div>
+            <div class="fg"><label class="fl">Telefone / WhatsApp *</label><input type="tel" class="fi" placeholder="+244 9XX XXX XXX" required/></div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Província</label><select class="fi"><option>Selecionar...</option><option>Luanda</option><option>Benguela</option><option>Huíla</option><option>Huambo</option><option>Cabinda</option><option>Malanje</option><option>Outra</option></select></div>
+            <div class="fg"><label class="fl">Dimensão da Empresa</label><select class="fi"><option>Selecionar...</option><option>Microempresa (1–9)</option><option>Pequena (10–49)</option><option>Média (50–249)</option><option>Grande (250+)</option></select></div>
+          </div>
+          <div class="fg">
+            <label class="fl">Serviços de Interesse *</label>
+            <div class="fchecks">
+              <label class="fcheck"><input type="checkbox"/><span>Infra &amp; Redes TI</span></label>
+              <label class="fcheck"><input type="checkbox"/><span>Segurança Eletrônica</span></label>
+              <label class="fcheck"><input type="checkbox"/><span>Desenvolvimento Software</span></label>
+              <label class="fcheck"><input type="checkbox"/><span>Website / E-commerce</span></label>
+              <label class="fcheck"><input type="checkbox"/><span>Hospedagem &amp; Domínio</span></label>
+              <label class="fcheck"><input type="checkbox"/><span>Internet (ISP)</span></label>
+              <label class="fcheck"><input type="checkbox"/><span>Manutenção &amp; Suporte</span></label>
+              <label class="fcheck"><input type="checkbox"/><span>Comércio &amp; Importação</span></label>
+              <label class="fcheck"><input type="checkbox"/><span>Consultoria TI</span></label>
+              <label class="fcheck"><input type="checkbox"/><span>Outro</span></label>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label class="fl">Orçamento Estimado</label><select class="fi"><option>Sem preferência</option><option>Até 500.000 Kz</option><option>500k – 2M Kz</option><option>2M – 10M Kz</option><option>Acima de 10M Kz</option></select></div>
+            <div class="fg"><label class="fl">Prazo Desejado</label><select class="fi"><option>A definir</option><option>Urgente (&lt;2 semanas)</option><option>1 mês</option><option>2–3 meses</option><option>Mais de 3 meses</option></select></div>
+          </div>
+          <div class="fg"><label class="fl">Descreva o Projeto / Necessidade *</label><textarea class="fi" placeholder="Descreva resumidamente: infraestrutura atual, problemas, objetivos, número de utilizadores, localizações..." required></textarea></div>
+          <button type="submit" class="fsub-btn">Enviar Pedido de Orçamento ↗</button>
+        </form>
+        <div class="fsuccess" id="qSuccess">
+          <div class="fsuccess-ico">✅</div>
+          <div class="fsuccess-t">Pedido Recebido!</div>
+          <div class="fsuccess-d">Obrigado pelo seu contacto.<br/>A nossa equipa responderá em até <strong style="color:var(--green)">24 horas</strong> com proposta personalizada.<br/><br/>Ref: <span id="qRef" style="color:var(--green)"></span></div>
+        </div>
+      </div>
+      <div>
+        <div class="iitems">
+          <div class="iitem"><div class="iico">⚡</div><div class="itxt"><div class="t">Resposta em 24 Horas</div><div class="d">Equipa comercial analisa e responde com proposta detalhada dentro de 1 dia útil.</div></div></div>
+          <div class="iitem"><div class="iico">🔍</div><div class="itxt"><div class="t">Diagnóstico Gratuito</div><div class="d">Visita técnica ou reunião online gratuita para melhor compreender as necessidades.</div></div></div>
+          <div class="iitem"><div class="iico">📋</div><div class="itxt"><div class="t">Proposta Detalhada</div><div class="d">Escopo técnico, prazo, recursos, metodologia e condições de pagamento claras.</div></div></div>
+          <div class="iitem"><div class="iico">🤝</div><div class="itxt"><div class="t">Sem Compromisso</div><div class="d">Pedido de orçamento não gera qualquer compromisso. Decida com total liberdade.</div></div></div>
+          <div class="iitem"><div class="iico">🔒</div><div class="itxt"><div class="t">Dados Seguros e Confidenciais</div><div class="d">As suas informações são tratadas com confidencialidade total.</div></div></div>
+        </div>
+        <div style="background:var(--glow);border:1px solid var(--border-g);border-radius:14px;padding:1.4rem;margin-top:.85rem">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;color:var(--text);margin-bottom:.85rem">Contacto Direto</div>
+          <div style="font-size:12px;color:var(--text2);line-height:2.1">
+            📧 info@bexaltec.ao<br/>
+            📞 +244 XXX XXX XXX<br/>
+            💬 WhatsApp Business<br/>
+            📍 Luanda, Angola<br/>
+            🕐 Seg–Sex 08h–18h &nbsp;|&nbsp; Sáb 09h–13h
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contacto">
+  <div class="container">
+    <div class="sec-badge">Contacto</div>
+    <h2 class="sec-title">Fale Connosco</h2>
+    <p class="sec-desc">Disponíveis para responder a todas as questões e agendar visita técnica gratuita.</p>
+    <div class="cgrid">
+      <div class="ccard"><div class="cico">📧</div><div class="ctit">Email</div><div class="cdesc"><a href="mailto:info@bexaltec.ao">info@bexaltec.ao</a><br/>Resposta em até 24h</div></div>
+      <div class="ccard"><div class="cico">📱</div><div class="ctit">Telefone &amp; WhatsApp</div><div class="cdesc">+244 XXX XXX XXX<br/>Seg–Sáb, horário comercial</div></div>
+      <div class="ccard"><div class="cico">📍</div><div class="ctit">Localização</div><div class="cdesc">Luanda, Angola<br/>Projetos em todo o país</div></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="flogo">BEXALTEC</div>
+  <div class="fcopy" style="letter-spacing:3px;font-size:10px;margin-bottom:.4rem">SOLUCIONES INFORMÁTICAS · LUANDA, ANGOLA</div>
+  <div class="fcopy">© 2025 Bexaltec. Todos os direitos reservados. · 11 CAEs Registadas · info@bexaltec.ao</div>
+</footer>
+
+<script>
+function showS(id,btn){
+  document.querySelectorAll('.spanel').forEach(p=>p.classList.remove('show'));
+  document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('show');
+  btn.classList.add('active');
+}
+function submitQ(e){
+  e.preventDefault();
+  document.getElementById('qRef').textContent='BX-ORC-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000)+1000);
+  document.getElementById('qForm').style.display='none';
+  document.getElementById('qSuccess').style.display='block';
+}
+const secs=document.querySelectorAll('section[id]');
+const navA=document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll',()=>{
+  let c='';secs.forEach(s=>{if(window.scrollY>=s.offsetTop-80)c=s.id});
+  navA.forEach(a=>{a.style.color=a.getAttribute('href')==='#'+c?'var(--green)':'var(--text2)';});
+});
+</script>
+</body>
+</html>
