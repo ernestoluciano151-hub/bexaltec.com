@@ -1,103 +1,164 @@
 'use client'
-import { useState } from 'react'
-import { mockTickets } from '@/lib/mock-data'
-import type { TicketStatus, TicketPriority } from '@/lib/mock-data'
+import { useEffect, useState, useTransition } from 'react'
+import { updateTicketStatus } from '@/lib/actions/tickets'
+import {
+  PageHeader, SearchBar, StatusBadge, PriorityBadge, Modal, FormField, useToast, EmptyState,
+} from '@/components/ui/shared'
 
-const statusBadge: Record<TicketStatus, string> = { open: 'badge-yellow', in_progress: 'badge-blue', resolved: 'badge-green', closed: 'badge-gray' }
-const statusLabel: Record<TicketStatus, string> = { open: 'Aberto', in_progress: 'Em Progresso', resolved: 'Resolvido', closed: 'Fechado' }
-const priorityBadge: Record<TicketPriority, string> = { low: 'badge-gray', medium: 'badge-blue', high: 'badge-yellow', critical: 'badge-red' }
-const priorityLabel: Record<TicketPriority, string> = { low: 'Baixa', medium: 'Média', high: 'Alta', critical: 'Crítica' }
+interface Ticket {
+  id: number
+  ref: string
+  title: string
+  status: string
+  priority: string
+  category: string
+  clientName: string | null
+  clientEmail: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+type TicketStatus = 'open' | 'in_progress' | 'waiting' | 'resolved' | 'closed'
+
+const TABS: { key: string; label: string }[] = [
+  { key: 'all',         label: 'Todos' },
+  { key: 'open',        label: 'Abertos' },
+  { key: 'in_progress', label: 'Em Progresso' },
+  { key: 'waiting',     label: 'Aguardando' },
+  { key: 'resolved',    label: 'Resolvidos' },
+  { key: 'closed',      label: 'Fechados' },
+]
+
+const STATUS_OPTIONS: TicketStatus[] = ['open', 'in_progress', 'waiting', 'resolved', 'closed']
+const STATUS_LABEL: Record<TicketStatus, string> = {
+  open: 'Aberto', in_progress: 'Em Progresso', waiting: 'Aguardando', resolved: 'Resolvido', closed: 'Fechado',
+}
 
 export default function AdminTicketsPage() {
+  const [tickets, setTickets] = useState<Ticket[]>([])
+  const [counts, setCounts] = useState<Record<string, number>>({})
+  const [loading, setLoading] = useState(true)
+  const [tab, setTab] = useState('all')
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | TicketStatus>('all')
-  const [priorityFilter, setPriorityFilter] = useState<'all' | TicketPriority>('all')
-  const [selected, setSelected] = useState<typeof mockTickets[0] | null>(null)
+  const [detail, setDetail] = useState<Ticket | null>(null)
+  const [newStatus, setNewStatus] = useState<TicketStatus>('open')
+  const [isPending, startTransition] = useTransition()
+  const { show, ToastComponent } = useToast()
 
-  const filtered = mockTickets.filter(t => {
-    const matchSearch = t.subject.toLowerCase().includes(search.toLowerCase()) || t.company.toLowerCase().includes(search.toLowerCase()) || t.ref.includes(search)
-    const matchStatus = statusFilter === 'all' || t.status === statusFilter
-    const matchPriority = priorityFilter === 'all' || t.priority === priorityFilter
-    return matchSearch && matchStatus && matchPriority
-  })
+  useEffect(() => {
+    fetch('/api/admin/tickets')
+      .then(r => r.json())
+      .then(data => { setTickets(data.tickets ?? []); setCounts(data.counts ?? {}) })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
 
-  const counts = {
-    open: mockTickets.filter(t => t.status === 'open').length,
-    in_progress: mockTickets.filter(t => t.status === 'in_progress').length,
-    resolved: mockTickets.filter(t => t.status === 'resolved').length,
-    closed: mockTickets.filter(t => t.status === 'closed').length,
+  function openDetail(t: Ticket) {
+    setDetail(t)
+    setNewStatus(t.status as TicketStatus)
   }
+
+  function handleStatusUpdate() {
+    if (!detail) return
+    startTransition(async () => {
+      const res = await updateTicketStatus(detail.id, newStatus)
+      if (res.error) { show(res.error, 'error'); return }
+      setTickets(prev => prev.map(t => t.id === detail.id ? { ...t, status: newStatus } : t))
+      setDetail(prev => prev ? { ...prev, status: newStatus } : null)
+      show('Estado actualizado.', 'success')
+    })
+  }
+
+  const filtered = tickets.filter(t => {
+    const q = search.toLowerCase()
+    const matchTab = tab === 'all' || t.status === tab
+    const matchSearch = !q || t.title.toLowerCase().includes(q) || t.ref.toLowerCase().includes(q) || (t.clientName ?? '').toLowerCase().includes(q)
+    return matchTab && matchSearch
+  })
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <div style={{ fontSize: 11, color: 'var(--forest)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: '0.25rem' }}>CRM</div>
-          <h1 className="font-rajdhani font-black" style={{ fontSize: 28, color: 'var(--text)', letterSpacing: 1 }}>Gestão de Tickets</h1>
-          <p style={{ fontSize: 13, color: 'var(--slate)', marginTop: 4 }}>{mockTickets.length} tickets no total</p>
-        </div>
+      <PageHeader
+        supra="CRM Admin"
+        title="Fila de Tickets"
+        sub={`${tickets.length} tickets no total`}
+      />
+
+      {/* Tabs */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+        {TABS.map(t => {
+          const cnt = t.key === 'all' ? tickets.length : (counts[t.key] ?? 0)
+          const active = tab === t.key
+          return (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              style={{
+                fontSize: 12, padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
+                border: `1px solid ${active ? 'rgba(0,230,118,0.4)' : 'var(--border)'}`,
+                color: active ? 'var(--green)' : 'var(--slate)',
+                background: active ? 'rgba(0,230,118,0.08)' : 'transparent',
+                fontFamily: 'inherit',
+              }}
+            >
+              {t.label} {cnt > 0 && <span style={{ opacity: 0.7 }}>({cnt})</span>}
+            </button>
+          )
+        })}
       </div>
 
-      {/* Status counters */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '0.75rem', marginBottom: '1.5rem' }}>
-        {(Object.entries(counts) as [TicketStatus, number][]).map(([status, count]) => (
-          <button key={status} onClick={() => setStatusFilter(statusFilter === status ? 'all' : status)}
-            className="card-base" style={{ padding: '1rem', textAlign: 'center', cursor: 'pointer', border: statusFilter === status ? '1px solid rgba(0,230,118,0.35)' : undefined, transition: 'all 0.2s' }}>
-            <div className="font-rajdhani font-black" style={{ fontSize: 28, lineHeight: 1, color: status === 'open' ? '#FFC107' : status === 'in_progress' ? '#42A5F5' : status === 'resolved' ? '#00E676' : 'var(--slate)' }}>{count}</div>
-            <div style={{ fontSize: 10, color: 'var(--slate)', marginTop: 4 }}>{statusLabel[status]}</div>
-          </button>
-        ))}
+      {/* Search */}
+      <div style={{ marginBottom: '1.25rem' }}>
+        <SearchBar value={search} onChange={setSearch} placeholder="Pesquisar por título, ref ou cliente..." />
       </div>
 
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <input className="input-field" style={{ maxWidth: 280 }} value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="🔍  Pesquisar por assunto, empresa, ref..." />
-        <select className="input-field" style={{ maxWidth: 140 }} value={priorityFilter} onChange={e => setPriorityFilter(e.target.value as 'all' | TicketPriority)}>
-          <option value="all">Todas Prioridades</option>
-          <option value="low">Baixa</option>
-          <option value="medium">Média</option>
-          <option value="high">Alta</option>
-          <option value="critical">Crítica</option>
-        </select>
-      </div>
-
-      {/* Tickets table */}
+      {/* Table */}
       <div className="card-base" style={{ overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table className="data-table">
             <thead>
               <tr>
-                <th>Referência</th>
-                <th>Assunto</th>
+                <th>Ref</th>
+                <th>Título</th>
                 <th>Cliente</th>
-                <th>Categoria</th>
-                <th>Prioridade</th>
                 <th>Estado</th>
-                <th>Atribuído a</th>
-                <th>Data</th>
+                <th>Prioridade</th>
+                <th>Categoria</th>
+                <th>Criado</th>
+                <th>Actualizado</th>
                 <th>Ação</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map(ticket => (
-                <tr key={ticket.id} style={{ cursor: 'pointer' }} onClick={() => setSelected(ticket)}>
-                  <td><span className="font-mono" style={{ fontSize: 11, color: 'var(--green2)' }}>{ticket.ref}</span></td>
+              {loading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i}>
+                    {Array.from({ length: 9 }).map((__, j) => (
+                      <td key={j} style={{ padding: '0.85rem 1rem' }}>
+                        <div style={{ height: 14, borderRadius: 6, background: 'rgba(255,255,255,0.06)', width: j === 0 ? '50%' : '65%' }} />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan={9}><EmptyState ico="🎫" title="Nenhum ticket encontrado" sub="Ajuste os filtros" /></td></tr>
+              ) : filtered.map(t => (
+                <tr key={t.id} style={{ cursor: 'pointer' }} onClick={() => openDetail(t)}>
+                  <td><span className="font-mono" style={{ fontSize: 11, color: 'var(--green2)' }}>{t.ref}</span></td>
                   <td style={{ maxWidth: 220 }}>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--silver2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ticket.subject}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--silver2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.title}</div>
                   </td>
                   <td>
-                    <div style={{ fontSize: 12 }}>{ticket.company}</div>
-                    <div style={{ fontSize: 10, color: 'var(--slate)' }}>{ticket.clientName}</div>
+                    <div style={{ fontSize: 12 }}>{t.clientName ?? '—'}</div>
+                    <div style={{ fontSize: 10, color: 'var(--slate)' }}>{t.clientEmail ?? ''}</div>
                   </td>
-                  <td><span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'rgba(176,190,197,0.07)', border: '1px solid rgba(176,190,197,0.15)', color: 'var(--slate)' }}>{ticket.category}</span></td>
-                  <td><span className={`badge ${priorityBadge[ticket.priority]}`}>{priorityLabel[ticket.priority]}</span></td>
-                  <td><span className={`badge ${statusBadge[ticket.status]}`}>{statusLabel[ticket.status]}</span></td>
-                  <td style={{ fontSize: 11, color: 'var(--slate)' }}>{ticket.assignedTo || '—'}</td>
-                  <td style={{ fontSize: 11, color: 'var(--muted)' }}>{new Date(ticket.createdAt).toLocaleDateString('pt-AO')}</td>
+                  <td><StatusBadge status={t.status} /></td>
+                  <td><PriorityBadge priority={t.priority as any} /></td>
+                  <td><span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'rgba(176,190,197,0.07)', border: '1px solid rgba(176,190,197,0.15)', color: 'var(--slate)' }}>{t.category}</span></td>
+                  <td style={{ fontSize: 11, color: 'var(--muted)' }}>{new Date(t.createdAt).toLocaleDateString('pt-AO')}</td>
+                  <td style={{ fontSize: 11, color: 'var(--muted)' }}>{new Date(t.updatedAt).toLocaleDateString('pt-AO')}</td>
                   <td onClick={e => e.stopPropagation()}>
-                    <button onClick={() => setSelected(ticket)}
-                      style={{ fontSize: 11, padding: '3px 9px', borderRadius: 6, background: 'rgba(0,230,118,0.07)', border: '1px solid rgba(0,230,118,0.18)', color: 'var(--green2)', cursor: 'pointer' }}>
+                    <button onClick={() => openDetail(t)} style={{ fontSize: 11, padding: '3px 9px', borderRadius: 6, background: 'rgba(0,230,118,0.07)', border: '1px solid rgba(0,230,118,0.18)', color: 'var(--green2)', cursor: 'pointer' }}>
                       Detalhes
                     </button>
                   </td>
@@ -105,69 +166,55 @@ export default function AdminTicketsPage() {
               ))}
             </tbody>
           </table>
-          {filtered.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--slate)', fontSize: 13 }}>
-              Nenhum ticket encontrado.
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Ticket detail */}
-      {selected && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(6,16,30,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-          onClick={() => setSelected(null)}>
-          <div className="card-base" style={{ width: '100%', maxWidth: 580, padding: '2rem', position: 'relative', maxHeight: '90vh', overflowY: 'auto' }}
-            onClick={e => e.stopPropagation()}>
-            <button onClick={() => setSelected(null)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--slate)', fontSize: 18, cursor: 'pointer' }}>✕</button>
-
-            <div style={{ marginBottom: '1.25rem' }}>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
-                <span className="font-mono" style={{ fontSize: 10, color: 'var(--slate)' }}>{selected.ref}</span>
-                <span className={`badge ${statusBadge[selected.status]}`}>{statusLabel[selected.status]}</span>
-                <span className={`badge ${priorityBadge[selected.priority]}`}>{priorityLabel[selected.priority]}</span>
-                <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: 'rgba(176,190,197,0.07)', border: '1px solid rgba(176,190,197,0.15)', color: 'var(--slate)' }}>{selected.category}</span>
-              </div>
-              <div className="font-rajdhani font-bold" style={{ fontSize: 20, color: 'var(--text)', marginBottom: '0.5rem' }}>{selected.subject}</div>
-              <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7 }}>{selected.description}</p>
+      {/* Detail modal */}
+      <Modal open={!!detail} onClose={() => setDetail(null)} title={detail?.ref ?? ''} subtitle={detail?.title} maxWidth={580}>
+        {detail && (
+          <div>
+            {/* Badges */}
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+              <StatusBadge status={detail.status} />
+              <PriorityBadge priority={detail.priority as any} />
+              <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 10, background: 'rgba(176,190,197,0.07)', border: '1px solid rgba(176,190,197,0.15)', color: 'var(--slate)' }}>{detail.category}</span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.65rem', marginBottom: '1.5rem' }}>
+            {/* Info grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem', marginBottom: '1.5rem' }}>
               {[
-                ['Cliente', selected.clientName],
-                ['Empresa', selected.company],
-                ['Criado em', new Date(selected.createdAt).toLocaleString('pt-AO')],
-                ['Atualizado', new Date(selected.updatedAt).toLocaleString('pt-AO')],
-                ['Atribuído a', selected.assignedTo || 'Sem atribuição'],
-                ['Categoria', selected.category],
+                ['Cliente', detail.clientName ?? '—'],
+                ['Email', detail.clientEmail ?? '—'],
+                ['Criado em', new Date(detail.createdAt).toLocaleString('pt-AO')],
+                ['Actualizado', new Date(detail.updatedAt).toLocaleString('pt-AO')],
               ].map(([k, v]) => (
-                <div key={k} style={{ padding: '0.7rem 0.85rem', background: 'rgba(13,31,58,0.5)', borderRadius: 8, border: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: 10, color: 'var(--slate)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 2 }}>{k}</div>
+                <div key={k} style={{ padding: '0.65rem 0.85rem', background: 'rgba(13,31,58,0.5)', borderRadius: 8, border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: 10, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 2 }}>{k}</div>
                   <div style={{ fontSize: 12, color: 'var(--silver2)' }}>{v}</div>
                 </div>
               ))}
             </div>
 
-            {/* Update status */}
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ fontSize: 11, color: 'var(--silver)', letterSpacing: '0.5px', display: 'block', marginBottom: '0.5rem' }}>ATUALIZAR ESTADO</label>
-              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                {(['open','in_progress','resolved','closed'] as TicketStatus[]).map(s => (
-                  <button key={s}
-                    style={{ fontSize: 11, padding: '5px 12px', borderRadius: 6, cursor: 'pointer', background: selected.status === s ? 'rgba(0,230,118,0.1)' : 'rgba(13,31,58,0.5)', border: `1px solid ${selected.status === s ? 'rgba(0,230,118,0.3)' : 'var(--border)'}`, color: selected.status === s ? 'var(--green)' : 'var(--slate)', fontFamily: 'inherit' }}>
-                    {statusLabel[s]}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Status update */}
+            <FormField label="Alterar Estado">
+              <select className="input-field" value={newStatus} onChange={e => setNewStatus(e.target.value as TicketStatus)}>
+                {STATUS_OPTIONS.map(s => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
+              </select>
+            </FormField>
 
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button className="btn-primary flex-1 justify-center text-xs py-2" style={{ fontSize: 12 }}>💬 Responder ao Cliente</button>
-              <button className="btn-secondary text-xs py-2 px-3" style={{ fontSize: 12 }}>📋 Guardar</button>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
+              <button onClick={() => setDetail(null)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid var(--border)', background: 'none', color: 'var(--slate)', cursor: 'pointer', fontSize: 13 }}>
+                Fechar
+              </button>
+              <button onClick={handleStatusUpdate} disabled={isPending || newStatus === detail.status} className="btn-primary" style={{ fontSize: 13, padding: '8px 20px' }}>
+                {isPending ? 'A guardar...' : 'Actualizar Estado'}
+              </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
+
+      {ToastComponent}
     </div>
   )
 }

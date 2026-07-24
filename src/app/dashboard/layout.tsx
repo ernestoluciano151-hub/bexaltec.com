@@ -19,6 +19,7 @@ const navItems = [
   { href: '/dashboard/chat', label: 'Chat de Suporte', ico: '💬' },
   { href: '/dashboard/notifications', label: 'Notificações', ico: '🔔' },
   { href: '/dashboard/history', label: 'Histórico', ico: '📅' },
+  { href: '/dashboard/profile', label: 'O Meu Perfil', ico: '👤' },
 ]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

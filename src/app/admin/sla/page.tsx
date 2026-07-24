@@ -1,37 +1,142 @@
-export default function SlaPage() {
-  const contracts = [
-    { client: 'Banco Nacional Lda', plan: 'Business', slaResponse: '4h', visits: 'Semanal', uptime: '99.9%', expiry: 'Dez 2025', compliance: 98 },
-    { client: 'Palácio da Justiça', plan: 'Enterprise', slaResponse: '2h', visits: 'Diária', uptime: '99.99%', expiry: 'Mar 2026', compliance: 100 },
-    { client: 'Tech Solutions Lda', plan: 'Basic', slaResponse: '24h', visits: 'Mensal', uptime: '99%', expiry: 'Jun 2025', compliance: 95 },
-  ]
-  const complianceColor = (n: number) => n >= 98 ? '#00E676' : n >= 90 ? '#FFB74D' : '#EF5350'
+'use client'
+import { useEffect, useState } from 'react'
+import { PageHeader, SearchBar, EmptyState } from '@/components/ui/shared'
+
+interface Contract {
+  id: number
+  ref: string
+  type: string | null
+  companyName: string | null
+  slaTarget: string | number | null
+  responseTime: number | null
+  value: string | number | null
+  startDate: string | null
+  endDate: string | null
+  autoRenew: boolean | null
+}
+
+const CONTRACT_BADGE: Record<string, { cls: string; label: string }> = {
+  basic:      { cls: 'badge-gray',   label: 'Básico' },
+  business:   { cls: 'badge-blue',   label: 'Business' },
+  enterprise: { cls: 'badge-yellow', label: 'Enterprise' },
+}
+
+export default function SlaAdminPage() {
+  const [contracts, setContracts] = useState<Contract[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    fetch('/api/admin/contracts')
+      .then(r => r.json())
+      .then(data => { setContracts(data.contracts ?? []); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const now = new Date()
+
+  const filtered = contracts.filter(c => {
+    const q = search.toLowerCase()
+    return !q || (c.companyName ?? '').toLowerCase().includes(q) || c.ref.toLowerCase().includes(q) || (c.type ?? '').toLowerCase().includes(q)
+  })
+
+  const activeCount = contracts.filter(c => c.endDate && new Date(c.endDate) >= now).length
+  const totalValue = contracts.reduce((sum, c) => sum + Number(c.value ?? 0), 0)
+
   return (
     <div>
-      <h1 className="font-rajdhani font-black" style={{ fontSize: 28, letterSpacing: 1, color: 'var(--text)', marginBottom: '0.5rem' }}>SLA & Contratos</h1>
-      <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '2rem' }}>Monitoramento de cumprimento de SLA por cliente.</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        {contracts.map((c, i) => (
-          <div key={i} className="card-base" style={{ padding: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--silver2)', marginBottom: '0.25rem' }}>{c.client}</div>
-                <div style={{ fontSize: 11, color: 'var(--slate)' }}>Plano {c.plan} · Expira {c.expiry}</div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 28, fontWeight: 900, color: complianceColor(c.compliance), fontFamily: 'var(--font-mono)', lineHeight: 1 }}>{c.compliance}%</div>
-                <div style={{ fontSize: 10, color: 'var(--slate)' }}>Cumprimento SLA</div>
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-              {[{ l: 'Resposta', v: c.slaResponse }, { l: 'Visitas', v: c.visits }, { l: 'Uptime', v: c.uptime }].map((m, j) => (
-                <div key={j} style={{ textAlign: 'center', padding: '0.75rem', background: 'rgba(0,230,118,0.04)', border: '1px solid rgba(0,230,118,0.1)', borderRadius: 8 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--green)' }}>{m.v}</div>
-                  <div style={{ fontSize: 10, color: 'var(--slate)', marginTop: 2 }}>{m.l}</div>
-                </div>
-              ))}
+      <PageHeader
+        supra="CRM Admin"
+        title="SLA & Contratos"
+        sub="Contratos de nível de serviço"
+      />
+
+      {/* Summary */}
+      {!loading && (
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+          <div className="card-base" style={{ padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: 22 }}>📄</span>
+            <div>
+              <div style={{ fontSize: 10, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: 1 }}>Contratos Ativos</div>
+              <div className="font-rajdhani font-black" style={{ fontSize: 28, color: 'var(--green)', lineHeight: 1 }}>{activeCount}</div>
             </div>
           </div>
-        ))}
+          <div className="card-base" style={{ padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: 22 }}>💰</span>
+            <div>
+              <div style={{ fontSize: 10, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: 1 }}>Valor Total Contratos</div>
+              <div className="font-rajdhani font-black" style={{ fontSize: 22, color: 'var(--green)', lineHeight: 1 }}>{totalValue.toLocaleString('pt-AO')} Kz</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search */}
+      <div style={{ marginBottom: '1.25rem' }}>
+        <SearchBar value={search} onChange={setSearch} placeholder="Pesquisar por empresa, ref, tipo..." />
+      </div>
+
+      {/* Table */}
+      <div className="card-base" style={{ overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Ref</th>
+                <th>Empresa</th>
+                <th>Tipo</th>
+                <th>SLA Target %</th>
+                <th>Tempo Resp. (h)</th>
+                <th>Valor</th>
+                <th>Início</th>
+                <th>Fim</th>
+                <th>Auto Renovação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    {Array.from({ length: 9 }).map((__, j) => (
+                      <td key={j} style={{ padding: '0.85rem 1rem' }}>
+                        <div style={{ height: 14, borderRadius: 6, background: 'rgba(255,255,255,0.06)', width: '60%' }} />
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan={9}><EmptyState ico="📄" title="Nenhum contrato encontrado" /></td></tr>
+              ) : filtered.map(c => {
+                const expired = c.endDate && new Date(c.endDate) < now
+                const badge = CONTRACT_BADGE[c.type ?? 'basic'] ?? CONTRACT_BADGE.basic
+                return (
+                  <tr key={c.id} style={{ background: expired ? 'rgba(239,68,68,0.04)' : undefined }}>
+                    <td><span className="font-mono" style={{ fontSize: 11, color: expired ? '#ef4444' : 'var(--green2)' }}>{c.ref}</span></td>
+                    <td style={{ fontSize: 13, fontWeight: 600, color: 'var(--silver2)' }}>{c.companyName ?? '—'}</td>
+                    <td><span className={`badge ${badge.cls}`}>{badge.label}</span></td>
+                    <td>
+                      <span className="font-mono" style={{ fontSize: 13, fontWeight: 700, color: Number(c.slaTarget) >= 99 ? 'var(--green)' : '#FFC107' }}>
+                        {c.slaTarget ? `${c.slaTarget}%` : '—'}
+                      </span>
+                    </td>
+                    <td style={{ fontSize: 12, color: 'var(--silver2)' }}>{c.responseTime ? `${c.responseTime}h` : '—'}</td>
+                    <td><span className="font-mono" style={{ fontSize: 12, color: 'var(--silver2)' }}>{c.value ? `${Number(c.value).toLocaleString('pt-AO')} Kz` : '—'}</span></td>
+                    <td style={{ fontSize: 11, color: 'var(--muted)' }}>{c.startDate ? new Date(c.startDate).toLocaleDateString('pt-AO') : '—'}</td>
+                    <td style={{ fontSize: 11, color: expired ? '#ef4444' : 'var(--muted)', fontWeight: expired ? 600 : undefined }}>
+                      {c.endDate ? new Date(c.endDate).toLocaleDateString('pt-AO') : '—'}
+                      {expired && <span style={{ marginLeft: 4, fontSize: 10 }}>⚠️ Expirado</span>}
+                    </td>
+                    <td>
+                      <span className={`badge ${c.autoRenew ? 'badge-green' : 'badge-gray'}`}>
+                        {c.autoRenew ? 'Sim' : 'Não'}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

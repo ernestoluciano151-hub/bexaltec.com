@@ -1,30 +1,107 @@
-export default function ContractsPage() {
-  const contracts = [
-    { ref: 'CTR-2024-001', type: 'Manutenção TI Business', start: 'Jan 2024', end: 'Dez 2024', status: 'Ativo', value: '150.000 AOA/mês' },
-    { ref: 'CTR-2024-002', type: 'Hospedagem VPS Premium', start: 'Mar 2024', end: 'Mar 2025', status: 'Ativo', value: '25.000 AOA/mês' },
-    { ref: 'CTR-2023-011', type: 'Outsourcing TI Parcial', start: 'Jun 2023', end: 'Jun 2024', status: 'Expirado', value: '200.000 AOA/mês' },
-  ]
-  const statusColor: Record<string, string> = { Ativo: '#00E676', Expirado: '#EF5350', 'Em Renovação': '#FFB74D' }
+// ─── Contracts Page — Server Component ────────────────────────────────────
+import { redirect } from 'next/navigation'
+import { getSession } from '@/lib/auth-server'
+import { getCompanyContracts } from '@/lib/queries/contracts'
+import { PageHeader, EmptyState } from '@/components/ui/shared'
+
+const CONTRACT_TYPE_LABELS: Record<string, string> = {
+  basic: 'Basic', business: 'Business', enterprise: 'Enterprise',
+}
+const CONTRACT_TYPE_BADGE: Record<string, string> = {
+  basic: 'badge-gray', business: 'badge-blue', enterprise: 'badge-green',
+}
+
+export default async function ContractsPage() {
+  const session = await getSession()
+  if (!session) redirect('/login')
+
+  if (!session.companyId) {
+    return (
+      <div>
+        <PageHeader
+          title="Contratos"
+          sub="Contratos de serviço ativos e histórico de acordos com a Bexaltec."
+        />
+        <EmptyState
+          ico="📄"
+          title="Sem contratos associados"
+          sub="A sua conta não está associada a uma empresa com contratos. Contacte-nos para mais informações."
+        />
+      </div>
+    )
+  }
+
+  const contracts = await getCompanyContracts(session.companyId)
+
   return (
     <div>
-      <h1 className="font-rajdhani font-black" style={{ fontSize: 28, letterSpacing: 1, color: 'var(--text)', marginBottom: '0.5rem' }}>Contratos</h1>
-      <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '2rem' }}>Contratos de serviço ativos e histórico de acordos com a Bexaltec.</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-        {contracts.map((c, i) => (
-          <div key={i} className="card-base" style={{ padding: '1.25rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ fontSize: 22 }}>📄</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 11, color: 'var(--green)', fontFamily: 'var(--font-mono)', marginBottom: '0.2rem' }}>{c.ref}</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--silver2)' }}>{c.type}</div>
-              <div style={{ fontSize: 11, color: 'var(--slate)', marginTop: 2 }}>{c.start} → {c.end}</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--silver2)', marginBottom: '0.35rem' }}>{c.value}</div>
-              <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: `${statusColor[c.status]}14`, color: statusColor[c.status], fontWeight: 700 }}>{c.status}</span>
-            </div>
+      <PageHeader
+        title="Contratos"
+        sub={`${contracts.length} contratos associados à sua empresa.`}
+      />
+
+      {contracts.length === 0 ? (
+        <EmptyState
+          ico="📄"
+          title="Sem contratos"
+          sub="Não existem contratos registados para a sua empresa de momento."
+        />
+      ) : (
+        <div className="card-base" style={{ overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                  {['Referência', 'Tipo', 'SLA Alvo', 'T. Resposta', 'Valor', 'Início', 'Fim', 'Auto-renovar'].map(h => (
+                    <th key={h} style={{ padding: '0.85rem 1rem', textAlign: 'left', fontSize: 10, color: 'var(--slate)', letterSpacing: 1, textTransform: 'uppercase', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {contracts.map(c => {
+                  const now = new Date()
+                  const isActive = new Date(c.endDate) >= now && new Date(c.startDate) <= now
+                  const isExpired = new Date(c.endDate) < now
+                  return (
+                    <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '0.85rem 1rem' }}>
+                        <span className="font-mono" style={{ fontSize: 12, color: 'var(--green)' }}>{c.ref}</span>
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem' }}>
+                        <span className={`badge ${CONTRACT_TYPE_BADGE[c.type] ?? 'badge-gray'}`}>
+                          {CONTRACT_TYPE_LABELS[c.type] ?? c.type}
+                        </span>
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem', fontSize: 13, color: 'var(--green)', fontWeight: 600 }}>
+                        {c.slaTarget ?? '—'}%
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem', fontSize: 12, color: 'var(--text2)' }}>
+                        {c.responseTime != null ? `${c.responseTime}h` : '—'}
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem' }}>
+                        {c.value
+                          ? <span className="font-rajdhani font-semibold" style={{ fontSize: 13, color: 'var(--text)' }}>{Number(c.value).toLocaleString('pt-AO')} <span style={{ fontSize: 10, color: 'var(--slate)' }}>Kz</span></span>
+                          : <span style={{ color: 'var(--muted)' }}>—</span>}
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem', fontSize: 12, color: 'var(--text2)', whiteSpace: 'nowrap' }}>
+                        {new Date(c.startDate).toLocaleDateString('pt-AO')}
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem', fontSize: 12, whiteSpace: 'nowrap', color: isExpired ? '#EF5350' : 'var(--text2)' }}>
+                        {new Date(c.endDate).toLocaleDateString('pt-AO')}
+                      </td>
+                      <td style={{ padding: '0.85rem 1rem' }}>
+                        <span className={`badge ${c.autoRenew ? 'badge-green' : 'badge-gray'}`}>
+                          {c.autoRenew ? 'Sim' : 'Não'}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
