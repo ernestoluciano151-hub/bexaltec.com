@@ -44,15 +44,22 @@ export async function updateCompany(id: number, data: Partial<typeof companies.$
 
 // ── Work Orders ───────────────────────────────────────────────────────────
 export async function createWorkOrder(data: {
-  title: string; description?: string; priority?: 'low' | 'medium' | 'high' | 'critical'; clientId?: number; companyId?: number; technicianId?: number; value?: number; scheduledAt?: Date
+  title: string; description?: string; priority?: 'low' | 'medium' | 'high' | 'critical'; clientId?: number; companyId?: number; technicianId?: number; value?: number | string; scheduledAt?: Date
 }) {
   const session = await getSession()
   if (!session || session.role !== 'admin') return { error: 'Sem permissão.' }
 
+  const { value, ...rest } = data
   try {
     const [wo] = await db
       .insert(workOrders)
-      .values({ ref: generateRef('BX-WO'), status: 'pending', priority: 'medium', ...data })
+      .values({
+        ref:         generateRef('BX-WO'),
+        status:      'pending',
+        priority:    'medium',
+        ...rest,
+        value:       value != null ? String(value) : undefined,
+      })
       .returning()
 
     revalidateTag(CACHE_TAGS.workOrders)
@@ -87,15 +94,24 @@ export async function updateWorkOrderStatus(
 
 // ── Invoices ──────────────────────────────────────────────────────────────
 export async function createInvoice(data: {
-  clientId?: number; companyId?: number; amount: number; tax?: number; total: number; dueDate: Date; notes?: string; workOrderId?: number; repairJobId?: number
+  clientId?: number; companyId?: number; amount: number | string; tax?: number | string; total: number | string; dueDate: Date; notes?: string; workOrderId?: number; repairJobId?: number
 }) {
   const session = await getSession()
   if (!session || session.role !== 'admin') return { error: 'Sem permissão.' }
 
+  const { amount, tax, total, ...rest } = data
   try {
     const [invoice] = await db
       .insert(invoices)
-      .values({ ref: generateRef('FT'), status: 'draft', currency: 'AOA', ...data })
+      .values({
+        ref:      generateRef('FT'),
+        status:   'draft',
+        currency: 'AOA',
+        ...rest,
+        amount:   String(amount),
+        tax:      tax != null ? String(tax) : '0',
+        total:    String(total),
+      })
       .returning()
 
     revalidateTag(CACHE_TAGS.invoices)

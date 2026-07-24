@@ -51,11 +51,12 @@ export async function createRepair(data: {
 export async function updateRepairStatus(
   repairId: number,
   status: 'intake' | 'diagnosis' | 'waiting_parts' | 'in_repair' | 'testing' | 'ready' | 'delivered' | 'cancelled',
-  extra?: { diagnosis?: string; resolution?: string; laborCost?: number; partsCost?: number; totalCost?: number; eta?: Date },
+  extra?: { diagnosis?: string; resolution?: string; laborCost?: number | string; partsCost?: number | string; totalCost?: number | string; eta?: Date },
 ) {
   const session = await getSession()
   if (!session || session.role === 'client') return { error: 'Sem permissão.' }
 
+  const { laborCost, partsCost, totalCost, ...extraRest } = extra ?? {}
   try {
     await db
       .update(repairJobs)
@@ -63,7 +64,10 @@ export async function updateRepairStatus(
         status,
         updatedAt:   new Date(),
         deliveredAt: status === 'delivered' ? new Date() : undefined,
-        ...(extra ?? {}),
+        ...extraRest,
+        laborCost:   laborCost != null ? String(laborCost) : undefined,
+        partsCost:   partsCost != null ? String(partsCost) : undefined,
+        totalCost:   totalCost != null ? String(totalCost) : undefined,
       })
       .where(eq(repairJobs.id, repairId))
 
