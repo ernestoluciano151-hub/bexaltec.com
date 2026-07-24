@@ -35,7 +35,7 @@ export function NotificationsClient({ notifications }: { notifications: Notifica
   const read = notifications.filter(n => localRead.has(n.id))
 
   function handleMarkRead(id: number) {
-    setLocalRead(prev => new Set([...prev, id]))
+    setLocalRead(prev => { const s = new Set(Array.from(prev)); s.add(id); return s })
     startTransition(async () => {
       const result = await markNotificationRead(id)
       if (result.error) {
@@ -47,7 +47,7 @@ export function NotificationsClient({ notifications }: { notifications: Notifica
 
   function markAllRead() {
     const unreadIds = unread.map(n => n.id)
-    setLocalRead(prev => new Set([...prev, ...unreadIds]))
+    setLocalRead(prev => new Set(Array.from(prev).concat(unreadIds)))
     startTransition(async () => {
       await Promise.all(unreadIds.map(id => markNotificationRead(id)))
     })
