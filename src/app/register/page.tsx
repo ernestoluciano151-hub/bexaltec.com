@@ -3,8 +3,6 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BexaltecLogo } from '@/components/Logo'
-import { register } from '@/lib/auth'
-
 export default function RegisterPage() {
   const router = useRouter()
   const [form, setForm] = useState({ name: '', email: '', password: '', confirm: '', company: '', phone: '' })
@@ -16,12 +14,24 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (form.password !== form.confirm) { setError('As senhas não coincidem.'); return }
-    if (form.password.length < 6) { setError('A senha deve ter pelo menos 6 caracteres.'); return }
+    if (form.password.length < 8) { setError('A senha deve ter pelo menos 8 caracteres.'); return }
     setLoading(true); setError('')
-    const { error: err } = await register(form)
-    setLoading(false)
-    if (err) { setError(err); return }
-    router.push('/dashboard')
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: form.name, email: form.email, password: form.password, company: form.company, phone: form.phone }),
+      })
+      const data = await res.json()
+      setLoading(false)
+      if (!res.ok) { setError(data.error ?? 'Erro ao criar conta.'); return }
+      router.push('/dashboard')
+      router.refresh()
+    } catch {
+      setError('Erro de ligação. Tente novamente.')
+      setLoading(false)
+    }
   }
 
   const fields = [
