@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { BexaltecLogo } from '@/components/Logo'
+import { CONTACT, whatsappLink, telLink, mailLink } from '@/lib/contact'
 
 const col1 = {
   title: 'Empresa',
@@ -61,14 +62,28 @@ export function Footer() {
             {/* Contact info */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
-                { icon: '📧', text: 'info@bexaltec.ao' },
-                { icon: '📱', text: '+244 9XX XXX XXX' },
-                { icon: '📍', text: 'Luanda, Angola' },
-                { icon: '🕐', text: 'Seg–Sex 08h–18h · Sáb 09h–13h' },
+                { icon: '📧', text: CONTACT.email, href: mailLink },
+                { icon: '📞', text: CONTACT.phoneDisplay, href: telLink },
+                { icon: '💬', text: `WhatsApp ${CONTACT.phoneDisplay}`, href: whatsappLink('Olá Bexaltec, gostaria de mais informações.'), external: true },
+                { icon: '📍', text: CONTACT.city },
+                { icon: '🕐', text: CONTACT.hours },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 12, color: 'var(--slate)' }}>
                   <span style={{ fontSize: 13 }}>{item.icon}</span>
-                  <span>{item.text}</span>
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      target={item.external ? '_blank' : undefined}
+                      rel={item.external ? 'noopener noreferrer' : undefined}
+                      style={{ color: 'var(--slate)', textDecoration: 'none' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--green)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = 'var(--slate)' }}
+                    >
+                      {item.text}
+                    </a>
+                  ) : (
+                    <span>{item.text}</span>
+                  )}
                 </div>
               ))}
             </div>

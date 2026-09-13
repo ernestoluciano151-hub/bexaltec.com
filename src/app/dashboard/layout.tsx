@@ -16,7 +16,7 @@ const navItems = [
   { href: '/dashboard/contracts', label: 'Contratos', ico: '📄' },
   { href: '/dashboard/billing', label: 'Faturação', ico: '🧾' },
   { href: '/dashboard/downloads', label: 'Documentos', ico: '📁' },
-  { href: '/dashboard/chat', label: 'Chat de Suporte', ico: '💬' },
+  { href: '/dashboard/chat', label: 'Falar com o Suporte', ico: '💬' },
   { href: '/dashboard/notifications', label: 'Notificações', ico: '🔔' },
   { href: '/dashboard/history', label: 'Histórico', ico: '📅' },
   { href: '/dashboard/profile', label: 'O Meu Perfil', ico: '👤' },

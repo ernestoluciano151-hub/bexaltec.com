@@ -217,13 +217,16 @@ CREATE INDEX IF NOT EXISTS idx_notifs_user      ON notifications(user_id, is_rea
 CREATE INDEX IF NOT EXISTS idx_users_email      ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_company    ON users(company_id);
 
--- ── Seed: default admin account ───────────────────────────────────────────────
--- Password: Admin@Bexaltec2024 (bcrypt hash — change after first login!)
-INSERT INTO users (name, email, password_hash, role)
-VALUES (
-  'Administrador Bexaltec',
-  'admin@bexaltec.ao',
-  '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TdUGQrjUNzZaA5UZNzMJv5bBN2oC',
-  'admin'
-)
-ON CONFLICT (email) DO NOTHING;
+-- ── Conta de administrador ────────────────────────────────────────────────────
+-- NÃO existe conta semeada por omissão, de propósito: uma senha fixa no
+-- repositório é uma porta aberta para quem tiver acesso ao código.
+--
+-- Para criar o primeiro administrador:
+--   1. Registe-se normalmente no portal, em /register
+--   2. Promova essa conta a admin:
+--        UPDATE users SET role = 'admin' WHERE email = 'o-seu-email@bexaltec.com';
+--
+-- Se esta migração já foi aplicada numa versão anterior, existe uma conta
+-- 'admin@bexaltec.ao' com uma senha que esteve publicada no repositório.
+-- Altere-lhe a senha ou desactive-a de imediato:
+--        UPDATE users SET is_active = false WHERE email = 'admin@bexaltec.ao';

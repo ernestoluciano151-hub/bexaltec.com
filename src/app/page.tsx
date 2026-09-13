@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Bexaltec — Soluções Informáticas · Angola',
     description: 'Laboratório especializado em reparação ao nível de componentes. Infraestrutura TI para empresas angolanas.',
-    url: 'https://bexaltec.ao',
+    url: 'https://bexaltec.com',
     siteName: 'Bexaltec',
     locale: 'pt_AO',
     type: 'website',

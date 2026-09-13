@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
 import { Footer } from '@/components/ui/Footer'
 import { CheckCircle2 } from 'lucide-react'
+import { createQuote } from '@/lib/actions/quotes'
+import { CONTACT, whatsappLink, telLink, mailLink } from '@/lib/contact'
 
 const provinces = ['Luanda', 'Benguela', 'Huíla', 'Huambo', 'Cabinda', 'Malanje', 'Bié', 'Namibe', 'Lunda Norte', 'Lunda Sul', 'Cunene', 'Moxico', 'Outra']
 
@@ -25,6 +27,7 @@ export default function QuotePage() {
   const [formSent, setFormSent] = useState(false)
   const [formRef, setFormRef] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
 
   const toggleService = (id: string) => {
     setSelectedServices(prev => prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id])
@@ -33,13 +36,35 @@ export default function QuotePage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSubmitting(true)
-    await new Promise(r => setTimeout(r, 1200))
-    const ref = `BX-ORC-${new Date().getFullYear()}-${Math.floor(Math.random() * 9000) + 1000}`
+    setError('')
+
+    const fd = new FormData(e.currentTarget)
+    const str = (k: string) => (fd.get(k) as string | null)?.trim() ?? ''
+    const province = str('province')
+
+    const { ref, error: err } = await createQuote({
+      name:     str('name'),
+      email:    str('email'),
+      phone:    str('phone'),
+      company:  str('company'),
+      province: province === 'Selecionar...' ? '' : province,
+      services: selectedServices
+        .map(id => serviceOptions.find(o => o.id === id)?.label)
+        .filter((l): l is string => Boolean(l)),
+      budget:   str('size'),
+      deadline: str('role'),
+      message:  str('description'),
+    })
+
+    if (err || !ref) {
+      setError(err ?? 'Não foi possível enviar o pedido.')
+      setSubmitting(false)
+      return
+    }
+
     setFormRef(ref)
     setFormSent(true)
     setSubmitting(false)
-    // TODO: POST to Formspree or email API
-    // await fetch('https://formspree.io/f/FORM_ID', { method: 'POST', body: new FormData(e.currentTarget) })
   }
 
   return (
@@ -103,7 +128,7 @@ export default function QuotePage() {
                     </div>
                     <div>
                       <label style={{ fontSize: 11, color: 'var(--silver)', letterSpacing: '0.5px', display: 'block', marginBottom: '0.3rem' }}>Telefone / WhatsApp *</label>
-                      <input type="tel" className="input-field" name="phone" placeholder="+244 9XX XXX XXX" required />
+                      <input type="tel" className="input-field" name="phone" placeholder="+244 9XX XXX XXX" pattern="[0-9+()\\s-]{9,20}" required />
                     </div>
                   </div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -165,6 +190,18 @@ export default function QuotePage() {
                     />
                   </div>
 
+                  {error && (
+                    <div role="alert" style={{
+                      padding: '0.75rem 1rem', borderRadius: 8, fontSize: 13,
+                      background: 'rgba(239,83,80,0.08)', border: '1px solid rgba(239,83,80,0.25)', color: '#EF5350',
+                    }}>
+                      {error}{' '}
+                      <a href={whatsappLink('Olá Bexaltec, gostaria de pedir um orçamento.')} target="_blank" rel="noopener noreferrer" style={{ color: '#EF5350', textDecoration: 'underline' }}>
+                        Falar por WhatsApp
+                      </a>
+                    </div>
+                  )}
+
                   <button
                     type="submit"
                     disabled={submitting}
@@ -199,10 +236,12 @@ export default function QuotePage() {
                 {/* Direct contact */}
                 <div style={{ padding: '1.1rem', background: 'rgba(0,230,118,0.05)', border: '1px solid rgba(0,230,118,0.18)', borderRadius: 12 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--silver2)', marginBottom: '0.6rem' }}>Contacto Direto</div>
-                  <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 2.1 }}>
-                    📧 info@bexaltec.ao<br />
-                    📞 +244 9XX XXX XXX<br />
-                    💬 WhatsApp Business
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', fontSize: 12 }}>
+                    <a href={mailLink} style={{ color: 'var(--text2)', textDecoration: 'none' }}>📧 {CONTACT.email}</a>
+                    <a href={telLink} style={{ color: 'var(--text2)', textDecoration: 'none' }}>📞 {CONTACT.phoneDisplay}</a>
+                    <a href={whatsappLink('Olá Bexaltec, gostaria de pedir um orçamento.')} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--green)', textDecoration: 'none' }}>
+                      💬 WhatsApp — {CONTACT.phoneDisplay}
+                    </a>
                   </div>
                 </div>
               </div>

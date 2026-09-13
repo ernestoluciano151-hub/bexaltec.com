@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Infraestrutura TI — Bexaltec',
     description: 'Projectos de infraestrutura TI de grande escala em Angola. Palácio da Justiça, Tribunal Constitucional e muito mais.',
-    url: 'https://bexaltec.ao/services/infrastructure',
+    url: 'https://bexaltec.com/services/infrastructure',
   },
 }
 

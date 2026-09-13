@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bexaltec.ao/sitemap.xml
+# Áreas privadas — não indexar
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api
+
+Sitemap: https://bexaltec.com/sitemap.xml

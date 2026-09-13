@@ -2,6 +2,7 @@
 // ─── Invoices Client Component ─────────────────────────────────────────────
 import { useState } from 'react'
 import { PageHeader, SearchBar, StatusBadge, EmptyState, Modal } from '@/components/ui/shared'
+import { CONTACT, whatsappLink, telLink } from '@/lib/contact'
 
 type Invoice = {
   id: number
@@ -167,11 +168,13 @@ export function InvoicesClient({ invoices }: { invoices: Invoice[] }) {
         </div>
         <div className="card-base" style={{ padding: '1.25rem' }}>
           <div className="font-rajdhani font-semibold" style={{ fontSize: 15, color: 'var(--text)', marginBottom: '0.75rem' }}>Suporte de Faturação</div>
-          <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 2 }}>
-            faturacao@bexaltec.ao<br/>
-            +244 9XX XXX XXX<br/>
-            WhatsApp Business<br/>
-            Seg–Sex 08h–17h
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', fontSize: 12 }}>
+            <a href={`mailto:${CONTACT.billingEmail}`} style={{ color: 'var(--text2)', textDecoration: 'none' }}>{CONTACT.billingEmail}</a>
+            <a href={telLink} style={{ color: 'var(--text2)', textDecoration: 'none' }}>{CONTACT.phoneDisplay}</a>
+            <a href={whatsappLink('Olá Bexaltec, tenho uma questão sobre faturação.')} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--green)', textDecoration: 'none' }}>
+              WhatsApp — {CONTACT.phoneDisplay}
+            </a>
+            <span style={{ color: 'var(--text2)' }}>Seg–Sex 08h–17h</span>
           </div>
         </div>
       </div>

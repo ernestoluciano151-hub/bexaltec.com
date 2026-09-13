@@ -1,37 +1,77 @@
-export default function QuotesPage() {
-  const quotes = [
-    { ref: 'BX-ORC-2025-1042', date: '18 Jan 2025', service: 'Infraestrutura TI', status: 'Aprovado', value: '850.000 AOA' },
-    { ref: 'BX-ORC-2025-0978', date: '05 Jan 2025', service: 'Laboratório — MacBook Pro', status: 'Pendente', value: '45.000 AOA' },
-    { ref: 'BX-ORC-2024-3301', date: '20 Dez 2024', service: 'CCTV & Segurança', status: 'Expirado', value: '320.000 AOA' },
-  ]
-  const statusColor: Record<string, string> = { Aprovado: '#00E676', Pendente: '#FFB74D', Expirado: '#EF5350' }
+// ─── Orçamentos do cliente ────────────────────────────────────────────────
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { getSession } from '@/lib/auth-server'
+import { getClientQuotes } from '@/lib/queries/quotes'
+import { PageHeader, EmptyState } from '@/components/ui/shared'
+
+const STATUS_LABEL: Record<string, string> = {
+  new: 'Recebido', in_review: 'Em análise', sent: 'Proposta enviada',
+  accepted: 'Aceite', rejected: 'Recusado', expired: 'Expirado',
+}
+
+const STATUS_COLOR: Record<string, string> = {
+  new: '#42A5F5', in_review: '#FFB74D', sent: '#00E676',
+  accepted: '#00C853', rejected: '#EF5350', expired: '#90A4AE',
+}
+
+export default async function QuotesPage() {
+  const session = await getSession()
+  if (!session) redirect('/login')
+
+  const quotes = await getClientQuotes(session.id, session.email)
+
   return (
     <div>
-      <h1 className="font-rajdhani font-black" style={{ fontSize: 28, letterSpacing: 1, color: 'var(--text)', marginBottom: '0.5rem' }}>Orçamentos</h1>
-      <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '2rem' }}>Histórico de orçamentos solicitados e estado atual.</p>
-      <div className="card-base" style={{ overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {['Referência', 'Data', 'Serviço', 'Estado', 'Valor'].map(h => (
-                <th key={h} style={{ padding: '0.85rem 1.1rem', textAlign: 'left', fontSize: 11, letterSpacing: 1, color: 'var(--slate)', textTransform: 'uppercase', fontWeight: 700 }}>{h}</th>
+      <PageHeader
+        title="Orçamentos"
+        sub="Pedidos de orçamento submetidos e estado atual."
+        action={
+          <Link href="/quote" className="btn-primary" style={{ fontSize: 12, padding: '9px 18px' }}>
+            + Pedir Orçamento
+          </Link>
+        }
+      />
+
+      <div className="card-base" style={{ overflowX: 'auto' }}>
+        {quotes.length === 0 ? (
+          <EmptyState
+            ico="📋"
+            title="Ainda não pediu nenhum orçamento"
+            sub="Os pedidos que submeter aparecem aqui, com a referência e o estado de cada um."
+            action={<Link href="/quote" className="btn-primary" style={{ fontSize: 12, padding: '9px 18px' }}>Pedir orçamento gratuito</Link>}
+          />
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr><th>Referência</th><th>Data</th><th>Serviços</th><th>Estado</th><th>Valor</th></tr>
+            </thead>
+            <tbody>
+              {quotes.map(q => (
+                <tr key={q.id}>
+                  <td className="font-mono" style={{ color: 'var(--green)', whiteSpace: 'nowrap' }}>{q.ref}</td>
+                  <td style={{ whiteSpace: 'nowrap' }}>{new Date(q.createdAt).toLocaleDateString('pt-AO')}</td>
+                  <td style={{ color: 'var(--silver2)', maxWidth: 320 }}>{q.services ?? '—'}</td>
+                  <td>
+                    <span style={{
+                      fontSize: 11, padding: '3px 10px', borderRadius: 20, fontWeight: 700,
+                      background: `${STATUS_COLOR[q.status] ?? '#90A4AE'}14`,
+                      border: `1px solid ${STATUS_COLOR[q.status] ?? '#90A4AE'}33`,
+                      color: STATUS_COLOR[q.status] ?? '#90A4AE',
+                    }}>
+                      {STATUS_LABEL[q.status] ?? q.status}
+                    </span>
+                  </td>
+                  <td style={{ color: 'var(--silver2)', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                    {q.value != null
+                      ? `${Number(q.value).toLocaleString('pt-AO', { maximumFractionDigits: 0 })} AOA`
+                      : <span style={{ color: 'var(--text2)', fontWeight: 400 }}>Por definir</span>}
+                  </td>
+                </tr>
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {quotes.map((q, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '0.85rem 1.1rem', fontSize: 12, color: 'var(--green)', fontFamily: 'var(--font-mono)' }}>{q.ref}</td>
-                <td style={{ padding: '0.85rem 1.1rem', fontSize: 12, color: 'var(--text2)' }}>{q.date}</td>
-                <td style={{ padding: '0.85rem 1.1rem', fontSize: 12, color: 'var(--silver2)' }}>{q.service}</td>
-                <td style={{ padding: '0.85rem 1.1rem' }}>
-                  <span style={{ fontSize: 10, padding: '2px 10px', borderRadius: 20, background: `${statusColor[q.status]}14`, color: statusColor[q.status], fontWeight: 700 }}>{q.status}</span>
-                </td>
-                <td style={{ padding: '0.85rem 1.1rem', fontSize: 13, color: 'var(--silver2)', fontWeight: 600 }}>{q.value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )

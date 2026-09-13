@@ -24,14 +24,15 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://bexaltec.com'),
   title: 'Bexaltec — Soluções Informáticas · Luanda, Angola',
   description: 'Empresa angolana especializada em infraestrutura TI, segurança eletrónica, desenvolvimento de software e transformação digital. Luanda, Angola.',
   keywords: ['TI Angola', 'informática Luanda', 'redes Angola', 'segurança eletrónica', 'software Angola', 'Bexaltec'],
-  authors: [{ name: 'Bexaltec', url: 'https://bexaltec.ao' }],
+  authors: [{ name: 'Bexaltec', url: 'https://bexaltec.com' }],
   openGraph: {
     title: 'Bexaltec — Soluções Informáticas · Angola',
     description: 'Soluções tecnológicas completas adaptadas à realidade angolana. Infraestrutura TI, segurança eletrónica, software e web.',
-    url: 'https://bexaltec.ao',
+    url: 'https://bexaltec.com',
     siteName: 'Bexaltec',
     locale: 'pt_AO',
     type: 'website',

@@ -11,6 +11,7 @@ const navItems = [
   { href: '/admin/clients', label: 'Clientes', ico: '👥' },
   { href: '/admin/companies', label: 'Empresas', ico: '🏢' },
   { href: '/admin/tickets', label: 'Tickets', ico: '🎫' },
+  { href: '/admin/quotes', label: 'Orçamentos', ico: '📋' },
   { href: '/admin/services', label: 'Serviços Ativos', ico: '⚙️' },
   { href: '/admin/laboratory', label: 'Laboratório', ico: '🔬' },
   { href: '/admin/repair-queue', label: 'Fila de Reparação', ico: '🔧' },

@@ -1,68 +1,135 @@
-# Deploy na Vercel — Bexaltec SaaS
+# Deploy — Bexaltec (Next.js 14 · Neon Postgres · Vercel)
 
-## 1. Instalar dependências localmente (para testar)
+> Atualizado a 2 de Setembro de 2026, após a correção dos seis pontos críticos da auditoria.
+
+---
+
+## 1. Variáveis de ambiente (obrigatórias)
+
+A aplicação **não arranca** sem estas duas. É intencional: um valor por omissão
+na chave JWT permitiria a qualquer pessoa com acesso ao código forjar um token
+de administrador.
+
+| Variável | Onde obter | Notas |
+|---|---|---|
+| `DATABASE_URL` | Neon → projeto → *Connection string* | Terminar com `?sslmode=require` |
+| `JWT_SECRET` | `openssl rand -base64 32` | Mínimo 32 caracteres. **Nunca** commitar. |
+| `NEXT_PUBLIC_APP_URL` | — | `https://bexaltec.com` |
+
+Localmente ficam em `.env.local`; na Vercel em **Project Settings → Environment Variables**
+(marcar Production, Preview e Development).
+
+> ⚠️ Se a chave `JWT_SECRET` já esteve alguma vez no código, gere uma nova.
+> Ao mudar a chave, todas as sessões ativas terminam — os utilizadores voltam a entrar.
+
+---
+
+## 2. Base de dados
 
 ```bash
 npm install
-npm run dev
-# Abrir http://localhost:3000
+npm run db:push          # aplica o esquema a partir de src/lib/schema.ts
 ```
 
-## 2. Fazer push para o GitHub
+Em alternativa, executar os ficheiros SQL por ordem no console do Neon:
 
-Se o projeto já está num repo GitHub:
-```bash
-git add .
-git commit -m "feat: transform to Next.js SaaS — landing + client portal + admin CRM"
-git push
-```
-
-## 3. Deploy na Vercel
-
-1. Ir a [vercel.com](https://vercel.com) → **Add New Project**
-2. Importar o repositório GitHub (bexaltec)
-3. Vercel detecta automaticamente **Next.js**
-4. Clicar **Deploy** — pronto em ~2 minutos
-
-## 4. Configurar variáveis de ambiente na Vercel
-
-Na Vercel: **Project Settings → Environment Variables**
-
-| Variável | Valor |
+| Migração | Conteúdo |
 |---|---|
-| `NEXT_PUBLIC_FORMSPREE_ID` | (criar em formspree.io) |
-| `NEXT_PUBLIC_SITE_URL` | https://bexaltec.ao |
-| `NEXT_PUBLIC_COMPANY_EMAIL` | info@bexaltec.ao |
+| `src/db/migrations/0001_initial.sql` | Esquema base: utilizadores, empresas, tickets, reparações, equipamentos, peças, ordens de trabalho, contratos, faturas, notificações |
+| `src/db/migrations/0002_quotes.sql` | **Tabela `quotes`** — necessária para o formulário de orçamento funcionar |
 
-## 5. Credenciais de demo
+**A migração 0002 é obrigatória.** Sem ela o formulário de `/quote` devolve erro
+ao cliente (e sugere o WhatsApp como alternativa), mas nada é gravado.
 
-| Acesso | Email | Senha |
-|---|---|---|
-| Cliente Demo | joao@sonaref.ao | demo123 |
-| Admin Demo | admin@bexaltec.ao | admin123 |
-| Botão "Demo" | (sem senha) | (login direto) |
+### Criar o primeiro administrador
 
-## 6. Próximas melhorias (roadmap)
+Não há conta de administrador semeada, de propósito — a versão anterior desta
+migração trazia `admin@bexaltec.ao` com uma senha fixa no repositório. **Se já
+aplicou essa migração, desactive ou mude a senha dessa conta agora.**
 
-### Integração Supabase (auth real)
-1. Criar projeto em [supabase.com](https://supabase.com) (gratuito)
-2. Copiar URL e ANON KEY para `.env.local`
-3. Substituir funções em `src/lib/auth.ts` por chamadas Supabase
+O registo público cria sempre contas com papel `client`. Criar a conta pelo
+portal e depois promovê-la:
 
-### Integração Formspree (formulário real)
-1. Criar conta em [formspree.io](https://formspree.io)
-2. Criar novo form → copiar o ID
-3. Definir `NEXT_PUBLIC_FORMSPREE_ID` e substituir a linha `TODO` em `src/app/page.tsx`
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'o-seu-email@bexaltec.com';
+```
 
-### Domínio personalizado
-1. Na Vercel: **Project Settings → Domains**
-2. Adicionar `bexaltec.ao` ou `www.bexaltec.ao`
-3. Configurar DNS no registo do domínio .ao
+---
 
-### Funcionalidades futuras
-- [ ] Notificações por email (SendGrid/Resend)
-- [ ] Upload de ficheiros nos tickets
-- [ ] Relatórios PDF (puppeteer)
-- [ ] Dashboard de análises (Vercel Analytics)
-- [ ] App mobile (React Native / Expo)
-- [ ] Integração Multicaixa para pagamentos
+## 3. Correr localmente
+
+```bash
+npm run dev        # http://localhost:3000
+npm run build      # verificação de produção
+```
+
+---
+
+## 4. Deploy na Vercel
+
+1. [vercel.com](https://vercel.com) → **Add New Project** → importar o repositório
+2. A Vercel deteta Next.js automaticamente
+3. Definir as variáveis do ponto 1 **antes** do primeiro deploy
+4. **Deploy**
+
+Os cabeçalhos de segurança (`X-Frame-Options`, `nosniff`, `Referrer-Policy`,
+`Permissions-Policy`) são aplicados por `vercel.json`.
+
+### Domínio
+
+**Project Settings → Domains** → adicionar `bexaltec.com` e `www.bexaltec.com`
+(com redireccionamento de `www` para o domínio nu), depois configurar o DNS no registrar.
+
+---
+
+## 5. Onde chegam os pedidos de orçamento
+
+O formulário em `/quote` grava na tabela `quotes` e cria uma notificação para
+todas as contas com papel `admin`.
+
+- Ver e gerir: **Portal Admin → Orçamentos** (`/admin/quotes`)
+- Estados: Novo → Em análise → Proposta enviada → Aceite / Recusado / Expirado
+- O cliente vê os seus pedidos em **Portal do Cliente → Orçamentos**
+
+> Ainda **não há envio de email** automático ao receber um pedido. A notificação
+> aparece dentro do portal. Para email, integrar Resend ou SendGrid em
+> `src/lib/actions/quotes.ts`.
+
+---
+
+## 6. Contactos publicados no site
+
+Todos os contactos vêm de um único ficheiro: **`src/lib/contact.ts`**.
+Alterar aí reflete-se no rodapé, na página de contacto, no orçamento, na
+faturação e na página de suporte.
+
+```ts
+phoneDisplay: '+244 938 457 563'
+whatsapp:     '244938457563'
+email:        'info@bexaltec.com'
+site:         'bexaltec.com'
+```
+
+As imagens das assinaturas de email vivem em `public/email/`
+(`bexaltec-assinatura.png` e `bexaltec-rodape.png`) e são servidas em
+`https://bexaltec.com/email/…`. Têm de estar publicadas para o logótipo
+aparecer nas assinaturas do Outlook.
+
+---
+
+## 7. Por fazer (por ordem de prioridade)
+
+Pontos da auditoria de Setembro de 2026 ainda por resolver — ver
+`AUDITORIA_GERAL_2026-09.md`.
+
+- [ ] **Responsividade**: 68 grelhas de colunas fixas; portal com sidebar fixa de 240 px sem menu mobile
+- [ ] **SEO**: falta a imagem Open Graph (1200×630) — o sitemap, o `robots.txt` e o `metadataBase` já estão feitos
+- [ ] **Páginas em falta**: `/privacy`, `/terms` e `/blog` estão ligadas no rodapé mas não existem (404)
+- [ ] Nome do utilizador em branco na sidebar (`getUser()` devolve `name: ''`)
+- [ ] Layouts do portal são client-side e anulam o SSR
+- [ ] Verificação de propriedade em `addTicketMessage` e `markNotificationRead`
+- [ ] Recuperação de senha e limite de tentativas no login
+- [ ] Registo descarta o campo "empresa"
+- [ ] Contraste de `--slate` e `--muted` abaixo do mínimo WCAG AA
+- [ ] Email automático ao receber pedidos de orçamento
+- [ ] Analytics (Vercel Analytics)

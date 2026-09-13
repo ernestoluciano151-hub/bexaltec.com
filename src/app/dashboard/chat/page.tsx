@@ -1,53 +1,142 @@
-'use client'
-import { useState } from 'react'
+// ─── Falar com o Suporte ──────────────────────────────────────────────────
+// Substitui o antigo "chat" que guardava as mensagens apenas no browser e
+// nunca as entregava a ninguém. Todos os canais desta página são reais.
 
-const initialMessages = [
-  { from: 'support', name: 'Suporte Bexaltec', text: 'Olá! Como posso ajudar hoje?', time: '09:00' },
-  { from: 'user', name: 'Você', text: 'Bom dia! Queria saber o estado da reparação do meu iPhone.', time: '09:02' },
-  { from: 'support', name: 'Suporte Bexaltec', text: 'Claro! Referência LAB-2025-0042. O seu iPhone está em fase de diagnóstico da placa. Estimamos concluir em 2 dias úteis.', time: '09:03' },
-]
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { getSession } from '@/lib/auth-server'
+import { getClientTickets } from '@/lib/queries/tickets'
+import { PageHeader, StatusBadge } from '@/components/ui/shared'
+import { CONTACT, whatsappLink, telLink, mailLink } from '@/lib/contact'
 
-export default function ChatPage() {
-  const [messages, setMessages] = useState(initialMessages)
-  const [input, setInput] = useState('')
+export default async function SupportPage() {
+  const session = await getSession()
+  if (!session) redirect('/login')
 
-  const send = () => {
-    if (!input.trim()) return
-    setMessages(m => [...m, { from: 'user', name: 'Você', text: input, time: new Date().toLocaleTimeString('pt', { hour: '2-digit', minute: '2-digit' }) }])
-    setInput('')
-  }
+  const tickets = await getClientTickets(session.id)
+  const openTickets = tickets.filter(t => t.status !== 'closed' && t.status !== 'resolved').slice(0, 4)
+
+  const waMessage = `Olá Bexaltec, sou ${session.name} e preciso de apoio técnico.`
+
+  const channels = [
+    {
+      ico: '🎫',
+      title: 'Abrir um ticket de suporte',
+      desc: 'O canal recomendado. Fica registado, com histórico e prazo de resposta associado ao seu contrato.',
+      cta: 'Abrir ticket',
+      href: '/dashboard/tickets',
+      internal: true,
+      primary: true,
+    },
+    {
+      ico: '💬',
+      title: 'WhatsApp',
+      desc: `${CONTACT.phoneDisplay} · ${CONTACT.hoursShort}. Para questões rápidas e acompanhamento de reparações.`,
+      cta: 'Abrir WhatsApp',
+      href: whatsappLink(waMessage),
+      internal: false,
+      primary: false,
+    },
+    {
+      ico: '📞',
+      title: 'Telefone',
+      desc: `${CONTACT.phoneDisplay} · ${CONTACT.hours}. Emergências fora de horas para clientes com contrato.`,
+      cta: 'Ligar agora',
+      href: telLink,
+      internal: false,
+      primary: false,
+    },
+    {
+      ico: '📧',
+      title: 'Email',
+      desc: `${CONTACT.email}. Para envio de documentação, propostas e faturação.`,
+      cta: 'Enviar email',
+      href: mailLink,
+      internal: false,
+      primary: false,
+    },
+  ]
 
   return (
     <div>
-      <h1 className="font-rajdhani font-black" style={{ fontSize: 28, letterSpacing: 1, color: 'var(--text)', marginBottom: '0.5rem' }}>Chat de Suporte</h1>
-      <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: '1.5rem' }}>Comunicação direta com a equipa técnica Bexaltec.</p>
-      <div className="card-base" style={{ display: 'flex', flexDirection: 'column', height: 500 }}>
-        <div style={{ flex: 1, padding: '1.25rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {messages.map((m, i) => (
-            <div key={i} style={{ display: 'flex', flexDirection: m.from === 'user' ? 'row-reverse' : 'row', gap: '0.75rem', alignItems: 'flex-end' }}>
-              <div style={{ width: 30, height: 30, borderRadius: '50%', background: m.from === 'user' ? 'rgba(0,230,118,0.15)' : 'rgba(66,165,245,0.15)', border: m.from === 'user' ? '1px solid rgba(0,230,118,0.3)' : '1px solid rgba(66,165,245,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: m.from === 'user' ? 'var(--green)' : '#42A5F5', flexShrink: 0 }}>
-                {m.name.charAt(0)}
+      <PageHeader
+        title="Falar com o Suporte"
+        sub="Escolha o canal mais adequado — todos chegam à equipa técnica da Bexaltec."
+      />
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        {channels.map(c => (
+          <div
+            key={c.title}
+            className="card-base"
+            style={{
+              padding: '1.5rem',
+              display: 'flex', flexDirection: 'column', gap: '0.85rem',
+              border: c.primary ? '1px solid rgba(0,230,118,0.25)' : undefined,
+              background: c.primary ? 'rgba(0,230,118,0.04)' : undefined,
+            }}>
+            <div style={{ fontSize: 28 }}>{c.ico}</div>
+            <div style={{ flex: 1 }}>
+              <div className="font-rajdhani font-bold" style={{ fontSize: 16, color: 'var(--text)', marginBottom: '0.35rem' }}>
+                {c.title}
               </div>
-              <div style={{ maxWidth: '70%' }}>
-                <div style={{ fontSize: 10, color: 'var(--slate)', marginBottom: '0.25rem', textAlign: m.from === 'user' ? 'right' : 'left' }}>{m.name} · {m.time}</div>
-                <div style={{ padding: '0.75rem 1rem', borderRadius: 12, fontSize: 13, lineHeight: 1.6, background: m.from === 'user' ? 'rgba(0,230,118,0.08)' : 'var(--card)', border: m.from === 'user' ? '1px solid rgba(0,230,118,0.2)' : '1px solid var(--border)', color: 'var(--silver2)' }}>
-                  {m.text}
-                </div>
-              </div>
+              <p style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.65 }}>{c.desc}</p>
             </div>
-          ))}
+            {c.internal ? (
+              <Link href={c.href} className={c.primary ? 'btn-primary' : 'btn-secondary'} style={{ fontSize: 12, padding: '9px 16px', justifyContent: 'center' }}>
+                {c.cta}
+              </Link>
+            ) : (
+              <a
+                href={c.href}
+                target={c.href.startsWith('http') ? '_blank' : undefined}
+                rel={c.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                className="btn-secondary"
+                style={{ fontSize: 12, padding: '9px 16px', justifyContent: 'center' }}>
+                {c.cta}
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="card-base" style={{ padding: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', gap: '1rem', flexWrap: 'wrap' }}>
+          <div className="font-rajdhani font-semibold" style={{ fontSize: 16, color: 'var(--text)' }}>
+            Os seus pedidos em aberto
+          </div>
+          <Link href="/dashboard/tickets" style={{ fontSize: 12, color: 'var(--green)', textDecoration: 'none' }}>
+            Ver todos os tickets →
+          </Link>
         </div>
-        <div style={{ padding: '1rem', borderTop: '1px solid var(--border)', display: 'flex', gap: '0.75rem' }}>
-          <input
-            className="input-field"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && send()}
-            placeholder="Escreva uma mensagem..."
-            style={{ flex: 1 }}
-          />
-          <button onClick={send} className="btn-primary" style={{ padding: '10px 20px', fontSize: 13 }}>Enviar</button>
-        </div>
+
+        {openTickets.length === 0 ? (
+          <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7 }}>
+            Não tem pedidos em aberto. Se precisar de assistência, abra um ticket — é o canal com prazo de resposta garantido.
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+            {openTickets.map(t => (
+              <Link
+                key={t.id}
+                href="/dashboard/tickets"
+                className="card-base"
+                style={{
+                  padding: '0.85rem 1rem', background: 'rgba(13,31,58,0.5)', textDecoration: 'none',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap',
+                }}>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--silver2)', marginBottom: 2 }}>{t.title}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text2)' }}>
+                    <span className="font-mono">{t.ref}</span>
+                    {t.category ? ` · ${t.category}` : ''}
+                  </div>
+                </div>
+                <StatusBadge status={t.status} />
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

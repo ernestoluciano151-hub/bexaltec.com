@@ -203,6 +203,6 @@ export const demoUser = {
 export const demoAdmin = {
   id: 'admin1',
   name: 'Administrador Bexaltec',
-  email: 'admin@bexaltec.ao',
+  email: 'admin@bexaltec.com',
   role: 'admin' as const,
 }

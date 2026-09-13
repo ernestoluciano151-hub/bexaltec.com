@@ -17,6 +17,7 @@ export const invoiceStatusEnum= pgEnum('invoice_status',['draft', 'sent', 'paid'
 export const contractTypeEnum = pgEnum('contract_type', ['basic', 'business', 'enterprise'])
 export const woStatusEnum     = pgEnum('wo_status',     ['pending', 'in_progress', 'completed', 'cancelled'])
 export const equipStatusEnum  = pgEnum('equip_status',  ['active', 'warranty', 'repair', 'retired'])
+export const quoteStatusEnum  = pgEnum('quote_status',  ['new', 'in_review', 'sent', 'accepted', 'rejected', 'expired'])
 
 // ── Users ─────────────────────────────────────────────────────────────────
 export const users = pgTable('users', {
@@ -198,6 +199,29 @@ export const invoices = pgTable('invoices', {
   updatedAt:   timestamp('updated_at').defaultNow().notNull(),
 })
 
+// ── Quotes (pedidos de orçamento do site público) ──────────────────────────
+export const quotes = pgTable('quotes', {
+  id:          serial('id').primaryKey(),
+  ref:         varchar('ref', { length: 24 }).notNull().unique(),
+  // Quem pediu. clientId fica preenchido quando o pedido vem de um utilizador
+  // autenticado; caso contrário guardamos apenas os dados do formulário.
+  clientId:    integer('client_id').references(() => users.id, { onDelete: 'set null' }),
+  name:        varchar('name', { length: 120 }).notNull(),
+  email:       varchar('email', { length: 160 }).notNull(),
+  phone:       varchar('phone', { length: 40 }),
+  company:     varchar('company', { length: 160 }),
+  province:    varchar('province', { length: 60 }),
+  services:    text('services'),          // lista separada por vírgulas
+  budget:      varchar('budget', { length: 60 }),
+  deadline:    varchar('deadline', { length: 60 }),
+  message:     text('message'),
+  status:      quoteStatusEnum('status').default('new').notNull(),
+  value:       numeric('value', { precision: 12, scale: 2 }),
+  internalNotes: text('internal_notes'),
+  createdAt:   timestamp('created_at').defaultNow().notNull(),
+  updatedAt:   timestamp('updated_at').defaultNow().notNull(),
+})
+
 // ── Notifications ─────────────────────────────────────────────────────────
 export const notifications = pgTable('notifications', {
   id:        serial('id').primaryKey(),
@@ -257,3 +281,5 @@ export type WorkOrder   = typeof workOrders.$inferSelect
 export type Contract    = typeof contracts.$inferSelect
 export type Invoice     = typeof invoices.$inferSelect
 export type Notification= typeof notifications.$inferSelect
+export type Quote       = typeof quotes.$inferSelect
+export type NewQuote    = typeof quotes.$inferInsert

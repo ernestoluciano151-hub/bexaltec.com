@@ -1,54 +1,130 @@
+'use client'
+import { useEffect, useState } from 'react'
+import { PageHeader, EmptyState, TableRowSkeleton, SearchBar } from '@/components/ui/shared'
+
+interface Part {
+  id: number
+  ref: string
+  name: string
+  category: string | null
+  brand: string | null
+  stockQty: number
+  minQty: number
+  unitPrice: string | null
+  supplier: string | null
+  location: string | null
+}
+
+function stockState(p: Part) {
+  if (p.stockQty <= 0) return { label: 'Sem Stock', color: '#EF5350' }
+  if (p.stockQty <= p.minQty) return { label: 'Baixo', color: '#FFB74D' }
+  return { label: 'OK', color: '#00E676' }
+}
+
+const kwanza = (v: string | null) =>
+  v == null ? '—' : `${Number(v).toLocaleString('pt-AO', { maximumFractionDigits: 0 })} AOA`
+
 export default function PartsPage() {
-  const parts = [
-    { ref: 'PC-ECRÃ-IP15PM', name: 'Ecrã iPhone 15 Pro Max OLED', category: 'iPhone', stock: 2, min: 1, price: '45.000 AOA', status: 'OK' },
-    { ref: 'PC-BAT-IP14', name: 'Bateria iPhone 14 Original', category: 'iPhone', stock: 0, min: 2, price: '18.000 AOA', status: 'Sem Stock' },
-    { ref: 'PC-KB-MB16M3', name: 'Teclado MacBook Pro 16" M3 PT', category: 'MacBook', stock: 1, min: 1, price: '95.000 AOA', status: 'Baixo' },
-    { ref: 'PC-STICK-PS5', name: 'Módulo stick analógico PS5', category: 'Consola', stock: 8, min: 3, price: '4.500 AOA', status: 'OK' },
-    { ref: 'PC-SSD-M2-1TB', name: 'SSD NVMe M.2 1TB Samsung 990 Pro', category: 'Storage', stock: 3, min: 2, price: '85.000 AOA', status: 'OK' },
-    { ref: 'PC-RAM-DDR5-16', name: 'RAM DDR5 16GB 5600MHz', category: 'Memória', stock: 0, min: 4, price: '42.000 AOA', status: 'Sem Stock' },
-  ]
-  const statusColor: Record<string, string> = { OK: '#00E676', Baixo: '#FFB74D', 'Sem Stock': '#EF5350' }
+  const [parts, setParts] = useState<Part[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    fetch('/api/admin/parts')
+      .then(async r => {
+        if (!r.ok) throw new Error(r.status === 401 ? 'Sessão expirada. Volte a entrar.' : 'Erro ao carregar o stock.')
+        return r.json()
+      })
+      .then(d => setParts(d.parts ?? []))
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const term = search.trim().toLowerCase()
+  const visible = parts.filter(p =>
+    !term || [p.ref, p.name, p.category, p.brand, p.supplier].some(v => v?.toLowerCase().includes(term)))
+
+  const outOfStock = parts.filter(p => p.stockQty <= 0).length
+  const lowStock = parts.filter(p => p.stockQty > 0 && p.stockQty <= p.minQty).length
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
-        <div>
-          <h1 className="font-rajdhani font-black" style={{ fontSize: 28, letterSpacing: 1, color: 'var(--text)', marginBottom: '0.25rem' }}>Peças & Stock</h1>
-          <p style={{ fontSize: 13, color: 'var(--text2)' }}>Gestão de componentes e peças do laboratório.</p>
+      <PageHeader
+        supra="CRM Admin"
+        title="Peças & Stock"
+        sub="Gestão de componentes e peças do laboratório."
+        action={
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            {!loading && outOfStock > 0 && (
+              <div style={{ padding: '0.65rem 1rem', background: '#EF535010', border: '1px solid #EF535025', borderRadius: 8, fontSize: 11, color: '#EF5350', fontWeight: 700 }}>
+                ⚠️ {outOfStock} Sem Stock
+              </div>
+            )}
+            {!loading && lowStock > 0 && (
+              <div style={{ padding: '0.65rem 1rem', background: '#FFB74D10', border: '1px solid #FFB74D25', borderRadius: 8, fontSize: 11, color: '#FFB74D', fontWeight: 700 }}>
+                ⚠️ {lowStock} Stock Baixo
+              </div>
+            )}
+          </div>
+        }
+      />
+
+      {error && (
+        <div role="alert" style={{
+          padding: '0.85rem 1rem', borderRadius: 8, fontSize: 13, marginBottom: '1.5rem',
+          background: 'rgba(239,83,80,0.08)', border: '1px solid rgba(239,83,80,0.25)', color: '#EF5350',
+        }}>
+          {error}
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          {[{ l: 'Sem Stock', n: 2, c: '#EF5350' }, { l: 'Stock Baixo', n: 1, c: '#FFB74D' }].map((s, i) => (
-            <div key={i} style={{ padding: '0.65rem 1rem', background: `${s.c}10`, border: `1px solid ${s.c}25`, borderRadius: 8, fontSize: 11, color: s.c, fontWeight: 700 }}>
-              ⚠️ {s.n} {s.l}
-            </div>
-          ))}
-          <button className="btn-primary" style={{ fontSize: 12, padding: '8px 18px' }}>+ Adicionar Peça</button>
+      )}
+
+      {!loading && parts.length > 0 && (
+        <div style={{ marginBottom: '1rem', maxWidth: 360 }}>
+          <SearchBar value={search} onChange={setSearch} placeholder="Pesquisar peça, referência ou fornecedor…" />
         </div>
-      </div>
-      <div className="card-base" style={{ overflow: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--border)' }}>
-              {['Ref.', 'Peça', 'Categoria', 'Stock', 'Mín.', 'Preço', 'Estado'].map(h => (
-                <th key={h} style={{ padding: '0.85rem 1rem', textAlign: 'left', fontSize: 10, letterSpacing: 1, color: 'var(--slate)', textTransform: 'uppercase', fontWeight: 700 }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {parts.map((p, i) => (
-              <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                <td style={{ padding: '0.85rem 1rem', fontSize: 10, color: 'var(--forest)', fontFamily: 'var(--font-mono)' }}>{p.ref}</td>
-                <td style={{ padding: '0.85rem 1rem', fontSize: 12, fontWeight: 600, color: 'var(--silver2)' }}>{p.name}</td>
-                <td style={{ padding: '0.85rem 1rem', fontSize: 11, color: 'var(--text2)' }}>{p.category}</td>
-                <td style={{ padding: '0.85rem 1rem', fontSize: 13, fontWeight: 700, color: statusColor[p.status], textAlign: 'center' }}>{p.stock}</td>
-                <td style={{ padding: '0.85rem 1rem', fontSize: 11, color: 'var(--muted)', textAlign: 'center' }}>{p.min}</td>
-                <td style={{ padding: '0.85rem 1rem', fontSize: 12, color: 'var(--silver2)' }}>{p.price}</td>
-                <td style={{ padding: '0.85rem 1rem' }}>
-                  <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 20, background: `${statusColor[p.status]}14`, color: statusColor[p.status], fontWeight: 700 }}>{p.status}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      )}
+
+      <div className="card-base" style={{ overflowX: 'auto' }}>
+        {loading ? (
+          <table className="data-table">
+            <tbody>{Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} cols={6} />)}</tbody>
+          </table>
+        ) : visible.length === 0 ? (
+          <EmptyState
+            ico="🗜️"
+            title={parts.length === 0 ? 'Ainda não há peças registadas' : 'Nenhuma peça corresponde à pesquisa'}
+            sub={parts.length === 0 ? 'As peças registadas na base de dados aparecem aqui.' : undefined}
+          />
+        ) : (
+          <table className="data-table">
+            <thead>
+              <tr><th>Referência</th><th>Peça</th><th>Categoria</th><th>Stock</th><th>Preço</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+              {visible.map(p => {
+                const st = stockState(p)
+                return (
+                  <tr key={p.id}>
+                    <td className="font-mono" style={{ color: 'var(--green)', whiteSpace: 'nowrap' }}>{p.ref}</td>
+                    <td style={{ color: 'var(--silver2)' }}>
+                      {p.name}
+                      {p.location && <div style={{ fontSize: 11 }}>📍 {p.location}</div>}
+                    </td>
+                    <td>{p.category ?? '—'}</td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{p.stockQty} <span style={{ fontSize: 11 }}>(mín. {p.minQty})</span></td>
+                    <td style={{ whiteSpace: 'nowrap' }}>{kwanza(p.unitPrice)}</td>
+                    <td>
+                      <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, background: `${st.color}14`, border: `1px solid ${st.color}33`, color: st.color, fontWeight: 700 }}>
+                        {st.label}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   )

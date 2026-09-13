@@ -147,6 +147,12 @@ export async function updateInvoiceStatus(
 
 // ── Notifications ─────────────────────────────────────────────────────────
 export async function sendNotification(userId: number, data: { title: string; body?: string; type?: string; link?: string }) {
+  // Toda a Server Action é exposta como endpoint HTTP público. Sem esta
+  // verificação qualquer visitante poderia enviar notificações (com título,
+  // texto e link arbitrários) a qualquer utilizador do portal.
+  const session = await getSession()
+  if (!session || session.role !== 'admin') return { error: 'Sem permissão.' }
+
   try {
     await db.insert(notifications).values({ userId, type: 'info', ...data })
     revalidateTag(`notifications-${userId}` as any)

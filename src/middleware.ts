@@ -1,16 +1,13 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
+import { JWT_SECRET } from '@/lib/jwt-config'
 
 // Routes that require authentication
 const PROTECTED_PREFIXES = ['/dashboard', '/admin']
 
 // Admin-only routes
 const ADMIN_PREFIXES = ['/admin']
-
-const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? 'bexaltec-dev-secret-change-in-production-min-32-chars'
-)
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -30,7 +27,7 @@ export async function middleware(request: NextRequest) {
   // Cryptographically verify the JWT — never trust unsigned cookies for role
   let role: string
   try {
-    const { payload } = await jwtVerify(token, SECRET)
+    const { payload } = await jwtVerify(token, JWT_SECRET)
     role = payload.role as string
     if (!role) throw new Error('no role in token')
   } catch {

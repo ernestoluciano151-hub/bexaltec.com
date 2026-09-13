@@ -2,11 +2,50 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
 import { Footer } from '@/components/ui/Footer'
+import { CONTACT, whatsappLink, telLink, mailLink } from '@/lib/contact'
 
 export const metadata: Metadata = {
   title: 'Contacto — Bexaltec · Luanda, Angola',
-  description: 'Entre em contacto com a Bexaltec. Email, telefone, WhatsApp Business e morada em Luanda, Angola. Resposta em 24 horas.',
+  description: `Entre em contacto com a Bexaltec. Telefone e WhatsApp ${CONTACT.phoneDisplay}, email ${CONTACT.email}. Luanda, Angola. Resposta em 24 horas.`,
 }
+
+const channels = [
+  {
+    ico: '💬',
+    title: 'WhatsApp',
+    value: CONTACT.phoneDisplay,
+    sub: 'A via mais rápida · resposta em horário laboral',
+    href: whatsappLink('Olá Bexaltec, gostaria de mais informações sobre os vossos serviços.'),
+    external: true,
+    highlight: true,
+  },
+  {
+    ico: '📞',
+    title: 'Telefone',
+    value: CONTACT.phoneDisplay,
+    sub: CONTACT.hoursShort,
+    href: telLink,
+  },
+  {
+    ico: '📧',
+    title: 'Email',
+    value: CONTACT.email,
+    sub: 'Resposta em até 24 horas úteis',
+    href: mailLink,
+  },
+  {
+    ico: '🕐',
+    title: 'Horário',
+    value: CONTACT.hoursShort,
+    sub: 'Sábado 09h–13h · Emergências 24/7 para clientes com contrato',
+  },
+  {
+    ico: '📍',
+    title: 'Onde estamos',
+    value: CONTACT.city,
+    sub: 'Visitas técnicas em todo o território nacional · atendimento por marcação',
+  },
+]
 
 export default function ContactPage() {
   return (
@@ -23,66 +62,82 @@ export default function ContactPage() {
             Estamos disponíveis para responder às suas questões e elaborar propostas personalizadas. Resposta garantida em até 24 horas.
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'start' }}>
-            {/* Contact info */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: '2rem', alignItems: 'start' }}>
+            {/* Canais de contacto */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {[
-                { ico: '📧', title: 'Email', value: 'info@bexaltec.ao', sub: 'Resposta em até 24 horas' },
-                { ico: '📱', title: 'Telefone & WhatsApp', value: '+244 9XX XXX XXX', sub: 'Segunda a Sexta, 08h–18h' },
-                { ico: '📍', title: 'Morada', value: 'Luanda, Angola', sub: 'Visitas técnicas em todo o território nacional' },
-                { ico: '🕐', title: 'Horário', value: 'Seg–Sex 08h–18h', sub: 'Sábado 09h–13h · Emergências 24/7' },
-              ].map((c, i) => (
-                <div key={i} className="card-base card-glow" style={{ padding: '1.25rem 1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-start', transition: 'all 0.25s' }}>
-                  <div style={{ fontSize: 24 }}>{c.ico}</div>
-                  <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--green)', textTransform: 'uppercase', marginBottom: 4 }}>{c.title}</div>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--silver2)', marginBottom: 3 }}>{c.value}</div>
-                    <div style={{ fontSize: 11, color: 'var(--slate)' }}>{c.sub}</div>
-                  </div>
-                </div>
-              ))}
-
-              {/* Quick links */}
-              <div className="card-base" style={{ padding: '1.5rem', background: 'rgba(0,230,118,0.04)', border: '1px solid rgba(0,230,118,0.15)' }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--silver2)', marginBottom: '0.75rem' }}>Atalhos Rápidos</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <Link href="/quote" style={{ fontSize: 13, color: 'var(--green)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>↗ Pedir Orçamento Gratuito</Link>
-                  <Link href="/services/laboratory" style={{ fontSize: 13, color: 'var(--text2)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>→ Entregar dispositivo para reparação</Link>
-                  <Link href="/services/infrastructure" style={{ fontSize: 13, color: 'var(--text2)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>→ Solicitar estudo de infraestrutura</Link>
-                  <Link href="/login" style={{ fontSize: 13, color: 'var(--text2)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>→ Aceder ao portal do cliente</Link>
-                </div>
-              </div>
+              {channels.map(c => {
+                const inner = (
+                  <>
+                    <div style={{ fontSize: 24 }}>{c.ico}</div>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--green)', textTransform: 'uppercase', marginBottom: 4 }}>{c.title}</div>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--silver2)', marginBottom: 3 }}>{c.value}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text2)' }}>{c.sub}</div>
+                    </div>
+                  </>
+                )
+                const style: React.CSSProperties = {
+                  padding: '1.25rem 1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-start',
+                  textDecoration: 'none', transition: 'all 0.25s',
+                  ...(c.highlight ? { background: 'rgba(0,230,118,0.05)', border: '1px solid rgba(0,230,118,0.22)' } : null),
+                }
+                return c.href ? (
+                  <a
+                    key={c.title}
+                    href={c.href}
+                    target={c.external ? '_blank' : undefined}
+                    rel={c.external ? 'noopener noreferrer' : undefined}
+                    className="card-base card-glow"
+                    style={style}>
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={c.title} className="card-base" style={style}>{inner}</div>
+                )
+              })}
             </div>
 
-            {/* Map placeholder + mini form */}
+            {/* Ações */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {/* Map placeholder */}
-              <div style={{ width: '100%', aspectRatio: '4/3', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                <div style={{ fontSize: 36, opacity: 0.25 }}>🗺️</div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--silver2)', marginBottom: 4 }}>Luanda, Angola</div>
-                  <div style={{ fontSize: 11, color: 'var(--slate)' }}>Mapa a ser integrado (Google Maps / Apple Maps)</div>
+              <div className="card-base" style={{ padding: '1.75rem', background: 'rgba(0,230,118,0.04)', border: '1px solid rgba(0,230,118,0.18)' }}>
+                <div className="font-rajdhani font-black" style={{ fontSize: 22, letterSpacing: 1, color: 'var(--text)', marginBottom: '0.5rem' }}>
+                  PRECISA DE UM ORÇAMENTO?
+                </div>
+                <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7, marginBottom: '1.25rem' }}>
+                  Preencha o formulário com os detalhes do projeto e recebe uma proposta detalhada em até 24 horas úteis. Gratuito e sem compromisso.
+                </p>
+                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                  <Link href="/quote" className="btn-primary" style={{ fontSize: 13, padding: '11px 22px' }}>
+                    Pedir Orçamento ↗
+                  </Link>
+                  <a
+                    href={whatsappLink('Olá Bexaltec, gostaria de pedir um orçamento.')}
+                    target="_blank" rel="noopener noreferrer"
+                    className="btn-secondary" style={{ fontSize: 13, padding: '11px 22px' }}>
+                    Falar por WhatsApp
+                  </a>
                 </div>
               </div>
 
-              {/* Social presence */}
-              <div className="card-base" style={{ padding: '1.25rem 1.5rem' }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--silver2)', marginBottom: '0.85rem' }}>Redes Sociais</div>
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  {[
-                    { label: 'WhatsApp', href: '#', color: '#25D366' },
-                    { label: 'LinkedIn', href: '#', color: '#0A66C2' },
-                    { label: 'Facebook', href: '#', color: '#1877F2' },
-                    { label: 'Instagram', href: '#', color: '#E4405F' },
-                  ].map((s, i) => (
-                    <a key={i} href={s.href} style={{
-                      fontSize: 12, padding: '6px 14px', borderRadius: 6,
-                      background: `${s.color}12`, border: `1px solid ${s.color}25`,
-                      color: s.color, textDecoration: 'none', fontWeight: 500,
-                    }}>
-                      {s.label}
-                    </a>
-                  ))}
+              <div className="card-base" style={{ padding: '1.5rem' }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--silver2)', marginBottom: '0.85rem' }}>Atalhos Rápidos</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <Link href="/services/laboratory" style={{ fontSize: 13, color: 'var(--text2)', textDecoration: 'none' }}>→ Entregar dispositivo para reparação</Link>
+                  <Link href="/services/infrastructure" style={{ fontSize: 13, color: 'var(--text2)', textDecoration: 'none' }}>→ Solicitar estudo de infraestrutura</Link>
+                  <Link href="/portfolio" style={{ fontSize: 13, color: 'var(--text2)', textDecoration: 'none' }}>→ Ver projetos realizados</Link>
+                  <Link href="/login" style={{ fontSize: 13, color: 'var(--text2)', textDecoration: 'none' }}>→ Aceder ao portal do cliente</Link>
+                </div>
+              </div>
+
+              <div className="card-base" style={{ padding: '1.5rem' }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--silver2)', marginBottom: '0.6rem' }}>Assistência urgente</div>
+                <p style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.7, marginBottom: '1rem' }}>
+                  Clientes com contrato de manutenção têm linha de emergência 24/7. Abra um ticket no portal ou ligue diretamente.
+                </p>
+                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                  <a href={telLink} className="btn-secondary" style={{ fontSize: 12, padding: '9px 18px' }}>
+                    Ligar {CONTACT.phoneDisplay}
+                  </a>
                 </div>
               </div>
             </div>

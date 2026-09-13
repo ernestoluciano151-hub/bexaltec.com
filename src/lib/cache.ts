@@ -21,6 +21,7 @@ export const CACHE_TAGS = {
   workOrders: 'work-orders',
   contracts:  'contracts',
   invoices:   'invoices',
+  quotes:     'quotes',
   notifications: 'notifications',
   dashboard:  'dashboard',
 } as const
@@ -71,6 +72,7 @@ export const invalidate = {
   workOrders: () => { revalidateTag(CACHE_TAGS.workOrders); revalidateTag(CACHE_TAGS.dashboard) },
   contracts:  () => revalidateTag(CACHE_TAGS.contracts),
   invoices:   () => { revalidateTag(CACHE_TAGS.invoices); revalidateTag(CACHE_TAGS.dashboard) },
+  quotes:     () => revalidateTag(CACHE_TAGS.quotes),
   notifications: (userId: number) => revalidateTag(`${CACHE_TAGS.notifications}-${userId}`),
   all:        () => Object.values(CACHE_TAGS).forEach(tag => revalidateTag(tag)),
 }

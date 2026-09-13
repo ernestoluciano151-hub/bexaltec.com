@@ -8,13 +8,7 @@ import { db } from './db'
 import { users } from './schema'
 import { eq } from 'drizzle-orm'
 import type { User } from './schema'
-
-// ── Config ────────────────────────────────────────────────────────────────
-const SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? 'bexaltec-dev-secret-change-in-production-min-32-chars'
-)
-const ALGORITHM = 'HS256'
-const SESSION_DURATION = 60 * 60 * 24 * 7 // 7 days in seconds
+import { JWT_SECRET, JWT_ALGORITHM, SESSION_DURATION } from './jwt-config'
 
 export interface SessionPayload {
   id: number
@@ -38,15 +32,15 @@ export async function verifyPassword(plain: string, hash: string): Promise<boole
 // ── JWT ───────────────────────────────────────────────────────────────────
 export async function signToken(payload: SessionPayload): Promise<string> {
   return new SignJWT({ ...payload })
-    .setProtectedHeader({ alg: ALGORITHM })
+    .setProtectedHeader({ alg: JWT_ALGORITHM })
     .setIssuedAt()
     .setExpirationTime(`${SESSION_DURATION}s`)
-    .sign(SECRET)
+    .sign(JWT_SECRET)
 }
 
 export async function verifyToken(token: string): Promise<SessionPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, SECRET)
+    const { payload } = await jwtVerify(token, JWT_SECRET)
     return payload as unknown as SessionPayload
   } catch {
     return null

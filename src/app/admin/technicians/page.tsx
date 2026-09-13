@@ -118,7 +118,7 @@ export default function TechniciansAdminPage() {
             <input
               className="input-field"
               type="email"
-              placeholder="tecnico@bexaltec.ao"
+              placeholder="tecnico@bexaltec.com"
               disabled
               style={{ opacity: 0.5, cursor: 'not-allowed' }}
             />
