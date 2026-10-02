@@ -62,7 +62,7 @@ export default function OutsourcingPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { n: '60+', l: 'Empresas em Outsourcing' },
+                { n: '11', l: 'CAEs Licenciadas' },
                 { n: '0h', l: 'Tempo de Recrutamento' },
                 { n: '100%', l: 'Cobertura Nacional' },
                 { n: '30d', l: 'Para Começar' },

@@ -6,4 +6,4 @@ Disallow: /admin
 Disallow: /dashboard
 Disallow: /api
 
-Sitemap: https://bexaltec.com/sitemap.xml
+Sitemap: https://www.bexaltec.com/sitemap.xml

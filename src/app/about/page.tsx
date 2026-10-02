@@ -6,14 +6,14 @@ import { ArrowRight, CheckCircle2 } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Sobre Nós — Bexaltec · Empresa de TI Angola',
-  description: 'Conheça a Bexaltec, empresa angolana especializada em tecnologia da informação desde 2018. Equipa certificada, projetos turnkey, presença nacional.',
+  description: 'Conheça a Bexaltec, empresa angolana especializada em tecnologia da informação. Equipa certificada, projetos turnkey, presença nacional em Angola.',
 }
 
 const kpis = [
-  { n: '6+', l: 'Anos no Mercado' },
-  { n: '120+', l: 'Projetos Concluídos' },
-  { n: '60+', l: 'Clientes Ativos' },
-  { n: '11', l: 'CAEs Registadas' },
+  { n: '10+', l: 'Projetos Concluídos' },
+  { n: '8+',  l: 'Clientes Ativos' },
+  { n: '11',  l: 'CAEs Registadas' },
+  { n: '20+', l: 'Dispositivos Reparados' },
 ]
 
 const values = [

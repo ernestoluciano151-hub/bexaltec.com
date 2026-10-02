@@ -65,10 +65,10 @@ export default function NetworkPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { n: '99.9%', l: 'SLA Uptime' },
+                { n: 'SLA', l: 'Uptime contratualizado' },
                 { n: '1 Gbps', l: 'Velocidade Máxima' },
-                { n: '40+', l: 'Redes Implementadas' },
-                { n: '24/7', l: 'Monitoramento NOC' },
+                { n: 'Turnkey', l: 'Projeto a entrega' },
+                { n: 'Remoto', l: 'Monitorização de rede' },
               ].map((s, i) => (
                 <div key={i} style={{ padding: '1.5rem', background: `rgba(77,208,225,0.04)`, border: `1px solid rgba(77,208,225,0.14)`, borderRadius: 14, textAlign: 'center' }}>
                   <div className="font-rajdhani font-black" style={{ fontSize: 34, color: COLOR, lineHeight: 1 }}>{s.n}</div>

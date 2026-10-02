@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Laboratório de Reparação — Bexaltec',
     description: 'Reparação ao nível de componentes. iPhone, MacBook, computadores, consolas. Microscópio profissional. Soldadura SMD.',
-    url: 'https://bexaltec.com/services/laboratory',
+    url: 'https://www.bexaltec.com/services/laboratory',
   },
 }
 
@@ -59,7 +59,7 @@ const process = [
 ]
 
 const stats = [
-  { n: '800+', l: 'Dispositivos Reparados' },
+  { n: '20+', l: 'Dispositivos Reparados' },
   { n: '95%', l: 'Taxa de Sucesso' },
   { n: '3–7d', l: 'Prazo Médio' },
   { n: '30d', l: 'Garantia Incluída' },

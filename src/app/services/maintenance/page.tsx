@@ -72,9 +72,9 @@ export default function MaintenancePage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
                 { n: '4h', l: 'Tempo de Resposta (Business)' },
-                { n: '24/7', l: 'Suporte Disponível' },
-                { n: '60+', l: 'Clientes em Contrato' },
-                { n: '99%', l: 'Taxa de Satisfação' },
+                { n: 'SLA', l: 'Contratos com SLA' },
+                { n: '11', l: 'CAEs Licenciadas' },
+                { n: 'Garantia', l: 'Documentada' },
               ].map((s, i) => (
                 <div key={i} style={{ padding: '1.5rem', background: `rgba(255,183,77,0.04)`, border: `1px solid rgba(255,183,77,0.14)`, borderRadius: 14, textAlign: 'center' }}>
                   <div className="font-rajdhani font-black" style={{ fontSize: 34, color: COLOR, lineHeight: 1 }}>{s.n}</div>

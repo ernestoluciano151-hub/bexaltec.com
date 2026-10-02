@@ -11,7 +11,7 @@ export const CONTACT = {
   email: 'info@bexaltec.com',
   billingEmail: 'faturacao@bexaltec.com',
   site: 'bexaltec.com',
-  siteUrl: 'https://bexaltec.com',
+  siteUrl: 'https://www.bexaltec.com',
   city: 'Luanda, Angola',
   hours: 'Seg–Sex 08h–18h · Sáb 09h–13h',
   hoursShort: 'Seg–Sex 08h–18h',

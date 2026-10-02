@@ -65,10 +65,10 @@ export default function DatacenterPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { n: '99.9%', l: 'Uptime Garantido' },
-                { n: '5+', l: 'Datacenters Implementados' },
-                { n: 'Dell+HPE', l: 'Parceiros Certificados' },
-                { n: 'AWS/Azure', l: 'Cloud Partners' },
+                { n: 'SLA', l: 'Uptime contratualizado' },
+                { n: 'Turnkey', l: 'Projeto a entrega' },
+                { n: 'Dell · HPE', l: 'Servidores que instalamos' },
+                { n: 'AWS · Azure', l: 'Migração para cloud' },
               ].map((s, i) => (
                 <div key={i} style={{ padding: '1.5rem', background: `rgba(206,147,216,0.04)`, border: `1px solid rgba(206,147,216,0.14)`, borderRadius: 14, textAlign: 'center' }}>
                   <div className="font-rajdhani font-black" style={{ fontSize: 28, color: COLOR, lineHeight: 1 }}>{s.n}</div>

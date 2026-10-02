@@ -14,7 +14,7 @@ de administrador.
 |---|---|---|
 | `DATABASE_URL` | Neon → projeto → *Connection string* | Terminar com `?sslmode=require` |
 | `JWT_SECRET` | `openssl rand -base64 32` | Mínimo 32 caracteres. **Nunca** commitar. |
-| `NEXT_PUBLIC_APP_URL` | — | `https://bexaltec.com` |
+| `NEXT_PUBLIC_APP_URL` | — | `https://www.bexaltec.com` |
 
 Localmente ficam em `.env.local`; na Vercel em **Project Settings → Environment Variables**
 (marcar Production, Preview e Development).
@@ -77,8 +77,15 @@ Os cabeçalhos de segurança (`X-Frame-Options`, `nosniff`, `Referrer-Policy`,
 
 ### Domínio
 
-**Project Settings → Domains** → adicionar `bexaltec.com` e `www.bexaltec.com`
-(com redireccionamento de `www` para o domínio nu), depois configurar o DNS no registrar.
+O site está em **`www.bexaltec.com`**. O domínio nu (`bexaltec.com`, sem www)
+**não tem registo de DNS** — não resolve. Por isso o canónico do site, o sitemap,
+o `metadataBase` e as assinaturas de email usam todos `www.bexaltec.com`.
+
+Para passar a usar o domínio nu: Vercel → **Settings → Domains** → adicionar
+`bexaltec.com`, criar no registrar o registo A que a Vercel indicar, e só depois
+trocar o canónico (é substituir `https://www.bexaltec.com` por `https://bexaltec.com`
+em `contact.ts`, `layout.tsx`, `page.tsx`, nas duas páginas de serviço com `url:`,
+no `sitemap.xml` e no `robots.txt`).
 
 ---
 
@@ -112,7 +119,7 @@ site:         'bexaltec.com'
 
 As imagens das assinaturas de email vivem em `public/email/`
 (`bexaltec-assinatura.png` e `bexaltec-rodape.png`) e são servidas em
-`https://bexaltec.com/email/…`. Têm de estar publicadas para o logótipo
+`https://www.bexaltec.com/email/…`. Têm de estar publicadas para o logótipo
 aparecer nas assinaturas do Outlook.
 
 ---

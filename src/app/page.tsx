@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
 import { Footer } from '@/components/ui/Footer'
 import { ArrowRight, Microscope, Server, CheckCircle2, Play } from 'lucide-react'
+import { GaleriaObras } from '@/components/GaleriaObras'
+import { OBRAS } from '@/lib/obras'
 
 export const metadata: Metadata = {
   title: 'Bexaltec — Soluções Informáticas · Luanda, Angola',
@@ -11,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Bexaltec — Soluções Informáticas · Angola',
     description: 'Laboratório especializado em reparação ao nível de componentes. Infraestrutura TI para empresas angolanas.',
-    url: 'https://bexaltec.com',
+    url: 'https://www.bexaltec.com',
     siteName: 'Bexaltec',
     locale: 'pt_AO',
     type: 'website',
@@ -25,9 +27,9 @@ export const metadata: Metadata = {
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const stats = [
-  { n: '6+', l: 'Anos no Mercado' },
-  { n: '120+', l: 'Projetos Concluídos' },
-  { n: '60+', l: 'Empresas Clientes' },
+  { n: '10+', l: 'Projetos Concluídos' },
+  { n: '8+', l: 'Empresas Clientes' },
+  { n: '11', l: 'CAEs Licenciadas' },
   { n: '24h', l: 'Tempo de Resposta' },
 ]
 
@@ -48,9 +50,9 @@ const infraServices = [
 ]
 
 const projects = [
-  { category: 'Infraestrutura', client: 'Palácio da Justiça', detail: 'Pisos 6, 7 e 8 · Cabeamento estruturado + rede completa', year: '2024' },
-  { category: 'Infraestrutura', client: 'Tribunal Constitucional', detail: 'Instalação rede corporativa · Fibra óptica + switches', year: '2023' },
-  { category: 'Laboratório', client: 'Clientes Particulares', detail: '800+ dispositivos reparados ao nível de componentes', year: '2026' },
+  { category: 'Infraestrutura', client: 'Edifício institucional · Luanda', detail: 'Três pisos · cabeamento estruturado, esteira metálica e bastidores', year: '2024' },
+  { category: 'Infraestrutura', client: 'Sede corporativa · Luanda', detail: 'Rede de dados e voz · backbone em fibra e comutação', year: '2023' },
+  { category: 'Laboratório', client: 'Clientes Particulares', detail: '20+ dispositivos reparados ao nível de componentes', year: '2026' },
   { category: 'Segurança', client: 'Entidade Corporativa', detail: '24 câmeras Hikvision + NVR 4K + monitoramento remoto', year: '2025' },
 ]
 
@@ -271,7 +273,7 @@ export default function HomePage() {
           {/* Lab stats */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginTop: '1.5rem' }}>
             {[
-              { n: '800+', l: 'Dispositivos Reparados' },
+              { n: '20+', l: 'Dispositivos Reparados' },
               { n: '95%', l: 'Taxa de Sucesso' },
               { n: '3–7d', l: 'Prazo Médio de Entrega' },
             ].map((s, i) => (
@@ -320,11 +322,15 @@ export default function HomePage() {
             {/* Proof social — case studies */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--slate)', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
-                Casos de Referência
+                Experiência Comprovada
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--text2)', lineHeight: 1.6, marginTop: '-0.5rem', marginBottom: '0.25rem' }}>
+                Obras executadas pela equipa da Bexaltec. Por respeito à confidencialidade contratada,
+                as instalações dos clientes não são identificadas.
               </div>
               {[
-                { client: 'Palácio da Justiça', detail: 'Cabeamento estruturado + rede completa · Pisos 6, 7 e 8', year: '2024', icon: '🏛️' },
-                { client: 'Tribunal Constitucional', detail: 'Rede corporativa · Fibra óptica + switches managed', year: '2023', icon: '⚖️' },
+                { client: 'Edifício institucional · Luanda', detail: 'Três pisos · cabeamento estruturado, esteira metálica e bastidores identificados', year: '2024', icon: '🏢' },
+                { client: 'Sede corporativa · Luanda', detail: 'Rede de dados e voz · backbone em fibra, comutação e bastidor principal', year: '2023', icon: '🖧' },
               ].map((cs, i) => (
                 <div key={i} className="card-base" style={{ padding: '1.25rem', borderLeft: '3px solid #42A5F5' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
@@ -371,10 +377,35 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── PROVA SOCIAL · FOTOGRAFIAS DE OBRA ── */}
+      <section style={{ padding: '6rem 2rem', background: 'linear-gradient(135deg, rgba(13,32,68,0.5) 0%, rgba(10,22,40,0.9) 100%)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div className="section-badge">Registo de obra</div>
+              <h2 className="font-rajdhani font-black" style={{ fontSize: 'clamp(26px,4vw,40px)', letterSpacing: 1, color: 'var(--text)' }}>
+                O trabalho, como ele é
+              </h2>
+            </div>
+            <Link href="/portfolio" className="btn-secondary" style={{ fontSize: 13, padding: '9px 20px' }}>
+              Ver todas as fotografias <ArrowRight size={13} />
+            </Link>
+          </div>
+
+          <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.7, maxWidth: '62ch', marginBottom: '2.5rem' }}>
+            Nenhuma destas imagens é de banco de imagens. São fotografias das nossas obras —
+            esteira metálica, bastidores, terminação e identificação — tiradas durante e no fim
+            de cada intervenção.
+          </p>
+
+          <GaleriaObras obras={OBRAS.slice(0, 6)} colunas={3} />
+        </div>
+      </section>
+
       {/* ── PARCEIROS ── */}
       <section style={{ padding: '5rem 2rem', background: 'linear-gradient(135deg, rgba(13,32,68,0.4) 0%, var(--navy) 100%)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div className="section-badge">Fabricantes & Parceiros</div>
+          <div className="section-badge">Fabricantes & Tecnologias</div>
           <h2 className="font-rajdhani font-black" style={{ fontSize: 'clamp(24px,4vw,36px)', letterSpacing: 1, color: 'var(--text)', marginBottom: '0.5rem' }}>
             Marcas que Representamos
           </h2>

@@ -62,8 +62,8 @@ export default function ConsultingPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { n: '120+', l: 'Projetos Entregues' },
-                { n: '6+', l: 'Anos de Experiência' },
+                { n: '24h', l: 'Resposta a Pedidos' },
+                { n: 'Garantia', l: 'Documentada' },
                 { n: '11', l: 'CAEs Registadas' },
                 { n: '100%', l: 'Projetos Turnkey' },
               ].map((s, i) => (

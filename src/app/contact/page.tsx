@@ -37,7 +37,7 @@ const channels = [
     ico: '🕐',
     title: 'Horário',
     value: CONTACT.hoursShort,
-    sub: 'Sábado 09h–13h · Emergências 24/7 para clientes com contrato',
+    sub: 'Sábado 09h–13h · Apoio prioritário para clientes com contrato',
   },
   {
     ico: '📍',
@@ -132,7 +132,7 @@ export default function ContactPage() {
               <div className="card-base" style={{ padding: '1.5rem' }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--silver2)', marginBottom: '0.6rem' }}>Assistência urgente</div>
                 <p style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.7, marginBottom: '1rem' }}>
-                  Clientes com contrato de manutenção têm linha de emergência 24/7. Abra um ticket no portal ou ligue diretamente.
+                  Clientes com contrato de manutenção têm apoio prioritário, com o tempo de resposta definido em contrato. Abra um ticket no portal ou ligue diretamente.
                 </p>
                 <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                   <a href={telLink} className="btn-secondary" style={{ fontSize: 12, padding: '9px 18px' }}>

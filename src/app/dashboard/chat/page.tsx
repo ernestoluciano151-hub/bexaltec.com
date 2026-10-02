@@ -40,7 +40,7 @@ export default async function SupportPage() {
     {
       ico: '📞',
       title: 'Telefone',
-      desc: `${CONTACT.phoneDisplay} · ${CONTACT.hours}. Emergências fora de horas para clientes com contrato.`,
+      desc: `${CONTACT.phoneDisplay} · ${CONTACT.hours}. Apoio prioritário para clientes com contrato.`,
       cta: 'Ligar agora',
       href: telLink,
       internal: false,

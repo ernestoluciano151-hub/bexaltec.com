@@ -196,3 +196,67 @@ body {
 @media (max-width: 768px) {
   .sidebar-layout { grid-template-columns: 1fr; }
 }
+
+/* ── Galeria de obras (prova social) ───────────────────────────────────────── */
+.galeria-obras {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.galeria-obras[data-cols="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.galeria-obras[data-cols="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+@media (max-width: 900px) {
+  .galeria-obras,
+  .galeria-obras[data-cols="3"],
+  .galeria-obras[data-cols="4"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .galeria-obras,
+  .galeria-obras[data-cols="2"],
+  .galeria-obras[data-cols="3"],
+  .galeria-obras[data-cols="4"] { grid-template-columns: minmax(0, 1fr); }
+}
+
+.galeria-item { margin: 0; min-width: 0; }
+
+.galeria-moldura {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--card2);
+  border: 1px solid var(--border);
+}
+.galeria-moldura img { transition: transform 0.4s ease; }
+.galeria-item:hover .galeria-moldura img { transform: scale(1.04); }
+
+.galeria-legenda {
+  margin-top: 0.5rem;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text2);
+}
+.galeria-tag {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--forest);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.galeria-nota {
+  margin-top: 1.25rem;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--slate);
+  border-left: 2px solid var(--border);
+  padding-left: 0.85rem;
+  max-width: 62ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galeria-moldura img,
+  .galeria-item:hover .galeria-moldura img { transition: none; transform: none; }
+}

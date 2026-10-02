@@ -300,7 +300,7 @@ Cada serviço (Infraestrutura, Segurança, Software, Web, ISP, Manutenção, Com
 O **maior diferencial da Bexaltec** (reparação de equipamentos com microscópio SMD) não tem página, módulo de gestão, ou menção destacada na homepage.
 
 ### 8.9 Sem Portfólio/Projetos
-Clientes como Palácio da Justiça e Tribunal Constitucional são prova social premium. Não existe página de portfólio nem estudos de caso.
+A experiência em obras institucionais é prova social forte, mas os clientes não podem ser identificados (confidencialidade contratada). A prova passa pelo registo fotográfico das obras, não por nomes. **Resolvido em Outubro de 2026:** galerias de fotografias reais na homepage, no portfólio e na página de infraestrutura.
 
 ---
 

@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { NavBar } from '@/components/ui/NavBar'
 import { Footer } from '@/components/ui/Footer'
 import { Server, CheckCircle2, ArrowRight, Building2, ChevronRight, ShieldCheck, Clock, Award } from 'lucide-react'
+import { GaleriaObras } from '@/components/GaleriaObras'
+import { OBRAS_INFRA } from '@/lib/obras'
 
 export const metadata: Metadata = {
   title: 'Infraestrutura TI — Bexaltec · Luanda, Angola',
@@ -10,8 +12,8 @@ export const metadata: Metadata = {
   keywords: ['infraestrutura TI Angola', 'cabeamento estruturado Luanda', 'fibra óptica Angola', 'datacenter Luanda', 'Bexaltec infraestrutura'],
   openGraph: {
     title: 'Infraestrutura TI — Bexaltec',
-    description: 'Projectos de infraestrutura TI de grande escala em Angola. Palácio da Justiça, Tribunal Constitucional e muito mais.',
-    url: 'https://bexaltec.com/services/infrastructure',
+    description: 'Projectos de infraestrutura TI de grande escala em Angola: edifícios institucionais, sedes corporativas e salas técnicas.',
+    url: 'https://www.bexaltec.com/services/infrastructure',
   },
 }
 
@@ -19,8 +21,8 @@ export const metadata: Metadata = {
 const services = [
   {
     title: 'Cabeamento Estruturado',
-    desc: 'Cat6A, Cat7, certificação por canal com relatório Fluke. Instalação de tomadas, patch panels e organizadores de cabos.',
-    tags: ['Cat6A', 'Cat7', 'Fluke', 'ANSI/TIA-568'],
+    desc: 'Cat.6 e Cat.6A, com ensaio ponto a ponto e relatório por canal. Instalação de tomadas, patch panels e organizadores de cabos.',
+    tags: ['Cat.6', 'Cat.6A', 'ANSI/TIA-568', 'ISO/IEC 11801'],
   },
   {
     title: 'Fibra Óptica',
@@ -61,20 +63,20 @@ const services = [
 
 const caseStudies = [
   {
-    client: 'Palácio da Justiça',
-    icon: '🏛️',
-    scope: 'Pisos 6, 7 e 8',
-    description: 'Implementação completa de infraestrutura de rede nos três pisos do Palácio da Justiça. Cabeamento estruturado Cat6A, switches Cisco managed, rack principal e secundários, patch panels certificados e documentação técnica completa.',
-    deliverables: ['Cabeamento Cat6A certificado', 'Switches Cisco managed', 'Rack 42U por piso', 'Documentação e planta de rede'],
+    client: 'Edifício institucional · Luanda',
+    icon: '🏢',
+    scope: 'Três pisos',
+    description: 'Infraestrutura de rede nos três pisos de um edifício institucional: percursos em esteira metálica suspensa, cabeamento estruturado Cat.6, bastidores de piso e terminação identificada painel a painel.',
+    deliverables: ['Esteira metálica e percursos', 'Cabeamento Cat.6 ensaiado', 'Bastidores por piso', 'Mapa de portas e registo fotográfico'],
     year: '2024',
     category: 'Cabeamento + Rede',
   },
   {
-    client: 'Tribunal Constitucional',
-    icon: '⚖️',
-    scope: 'Instalação Corporativa Completa',
-    description: 'Rede corporativa completa para o Tribunal Constitucional de Angola. Backbone em fibra óptica, switches layer 3, wireless segmentado por departamento e firewall perimetral.',
-    deliverables: ['Fibra óptica backbone', 'Switches Cisco Layer 3', 'Wireless segmentado', 'Firewall corporativo'],
+    client: 'Sede corporativa · Luanda',
+    icon: '🖧',
+    scope: 'Rede de dados e voz',
+    description: 'Rede completa para uma sede corporativa, com separação de serviços de dados e de voz no mesmo bastidor, backbone em fibra e identificação integral por piso e por tipo de serviço.',
+    deliverables: ['Backbone em fibra', 'Dados e voz no mesmo bastidor', 'Identificação por piso e serviço', 'Documentação de entrega'],
     year: '2023',
     category: 'Infraestrutura Completa',
   },
@@ -85,7 +87,7 @@ const process = [
   { n: '02', title: 'Projeto', desc: 'Elaboração do projeto técnico com planta de rede, especificação de equipamentos e orçamento detalhado.' },
   { n: '03', title: 'Aprovação', desc: 'Apresentação ao cliente, ajustes e aprovação formal antes de qualquer trabalho de campo.' },
   { n: '04', title: 'Implementação', desc: 'Instalação por equipa técnica certificada, seguindo projeto aprovado e melhores práticas.' },
-  { n: '05', title: 'Certificação', desc: 'Testes e certificação de cada canal com equipamento Fluke. Relatório detalhado por ponto.' },
+  { n: '05', title: 'Ensaio', desc: 'Verificação de continuidade e sequência de pares em cada canal, com relatório por ponto. Certificação com equipamento homologado quando o caderno de encargos a exige.' },
   { n: '06', title: 'Entrega', desc: 'Documentação completa, formação da equipa interna e garantia sobre todos os trabalhos.' },
 ]
 
@@ -138,9 +140,9 @@ export default function InfrastructurePage() {
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 {[
-                  { icon: ShieldCheck, text: 'Certificação Fluke por canal com relatório' },
+                  { icon: ShieldCheck, text: 'Ensaio ponto a ponto com relatório de entrega' },
                   { icon: Clock, text: 'Projetos turnkey: entrega completa com documentação' },
-                  { icon: Award, text: 'Referências: Palácio da Justiça · Tribunal Constitucional' },
+                  { icon: Award, text: 'Experiência comprovada · 11 CAEs licenciadas' },
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--slate)' }}>
                     <item.icon size={13} color="#42A5F5" />
@@ -229,22 +231,7 @@ export default function InfrastructurePage() {
             ))}
           </div>
 
-          {/* Photo gallery placeholder */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem' }}>
-            {['Instalação no Local', 'Rack Finalizado', 'Certificação Fluke', 'Documentação Entregue'].map((label, i) => (
-              <div key={i} style={{
-                aspectRatio: '4/3',
-                background: 'var(--card)', border: '1px solid rgba(66,165,245,0.12)', borderRadius: 12,
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6,
-              }}>
-                <div style={{ fontSize: 24, opacity: 0.2 }}>📷</div>
-                <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: 1, textAlign: 'center', padding: '0 0.5rem' }}>{label}</div>
-              </div>
-            ))}
-          </div>
-          <p style={{ fontSize: 10, color: 'var(--muted)', textAlign: 'center', marginTop: '0.75rem', letterSpacing: 1 }}>
-            FOTOGRAFIAS REAIS DOS PROJETOS A SEREM ADICIONADAS
-          </p>
+          <GaleriaObras obras={OBRAS_INFRA.slice(0, 4)} colunas={4} nota={false} />
         </div>
       </section>
 
@@ -273,32 +260,18 @@ export default function InfrastructurePage() {
         </div>
       </section>
 
-      {/* ── PORTFOLIO PHOTOS PLACEHOLDER ── */}
+      {/* ── REGISTO FOTOGRÁFICO DE OBRA ── */}
       <section style={{ padding: '5rem 2rem', background: 'var(--navy)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div className="section-badge">Galeria de Projetos</div>
-          <h2 className="font-rajdhani font-black" style={{ fontSize: 'clamp(24px,4vw,36px)', letterSpacing: 1, color: 'var(--text)', marginBottom: '2rem' }}>
+          <div className="section-badge">Registo de obra</div>
+          <h2 className="font-rajdhani font-black" style={{ fontSize: 'clamp(24px,4vw,36px)', letterSpacing: 1, color: 'var(--text)', marginBottom: '0.75rem' }}>
             Fotografias dos Projetos
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
-            {[
-              'Palácio da Justiça — Piso 6',
-              'Rack 42U — Tribunal Constitucional',
-              'Cabeamento Cat6A',
-              'Switch Cisco Instalado',
-              'Fibra Óptica — Fusão',
-              'Patch Panel Completo',
-            ].map((label, i) => (
-              <div key={i} style={{
-                aspectRatio: '16/10',
-                background: 'var(--card)', border: '1px solid rgba(66,165,245,0.12)', borderRadius: 14,
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8,
-              }}>
-                <div style={{ fontSize: 28, opacity: 0.2 }}>📷</div>
-                <div style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: 1, textAlign: 'center', padding: '0 1rem' }}>{label}</div>
-              </div>
-            ))}
-          </div>
+          <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.7, maxWidth: '62ch', marginBottom: '2.5rem' }}>
+            Do percurso em esteira metálica à terminação identificada painel a painel. Todas as
+            imagens são das nossas intervenções.
+          </p>
+          <GaleriaObras obras={OBRAS_INFRA} colunas={4} />
         </div>
       </section>
 

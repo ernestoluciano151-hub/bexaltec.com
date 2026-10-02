@@ -1,17 +1,27 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { NavBar } from '@/components/ui/NavBar'
 import { Footer } from '@/components/ui/Footer'
+import { GaleriaObras } from '@/components/GaleriaObras'
+import { OBRAS, OBRAS_INFRA } from '@/lib/obras'
 
 export const metadata: Metadata = {
   title: 'Portfólio — Bexaltec · Projetos em Angola',
   description: 'Portfólio de projetos Bexaltec: infraestrutura TI, laboratório de reparação, segurança eletrónica, software e muito mais. Casos reais em Angola.',
 }
 
+// Fotografia que acompanha cada caso de referência, pela ordem em que aparecem.
+const DESTAQUE_FOTO = ['/obras/esteira-percurso.jpg', '/obras/bastidor-producao.jpg']
+const DESTAQUE_ALT = [
+  'Percurso principal em esteira perfurada montada acima do teto falso, ao longo do perímetro do piso',
+  'Bastidor concluído em produção com painéis identificados, comutadores, painel de fibra e servidores',
+]
+
 const projects = [
-  { category: 'Infraestrutura', client: 'Palácio da Justiça', detail: 'Cabeamento estruturado Cat6A + switches Cisco · Pisos 6, 7 e 8', year: '2024', highlight: true },
-  { category: 'Infraestrutura', client: 'Tribunal Constitucional', detail: 'Rede corporativa completa · Fibra óptica + switches Layer 3 + firewall', year: '2023', highlight: true },
-  { category: 'Laboratório', client: 'Clientes Particulares', detail: '800+ dispositivos reparados ao nível de componentes · iPhone, MacBook, Computadores', year: '2022–2026' },
+  { category: 'Infraestrutura', client: 'Edifício institucional · Luanda', detail: 'Três pisos · cabeamento estruturado Cat.6, esteira metálica e bastidores', year: '2024', highlight: true },
+  { category: 'Infraestrutura', client: 'Sede corporativa · Luanda', detail: 'Rede de dados e voz · backbone em fibra, comutação e bastidor principal', year: '2023', highlight: true },
+  { category: 'Laboratório', client: 'Clientes Particulares', detail: '20+ dispositivos reparados ao nível de componentes · iPhone, MacBook, Computadores', year: '2022–2026' },
   { category: 'Segurança', client: 'Empresa Privada (Confidencial)', detail: '24 câmeras Hikvision 4K + NVR + monitoramento remoto + controlo de acessos biométrico', year: '2025' },
   { category: 'Software', client: 'Escola Superior (Confidencial)', detail: 'Sistema de gestão escolar ERP customizado · Matrículas, notas, financeiro', year: '2023' },
   { category: 'Web & Hosting', client: 'Grupo Empresarial (Confidencial)', detail: 'Website corporativo + email @empresa.ao + hospedagem VPS gerida', year: '2024' },
@@ -41,7 +51,8 @@ export default function PortfolioPage() {
             PROJETOS REALIZADOS
           </h1>
           <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.75, maxWidth: 520, margin: '0 auto' }}>
-            Uma selecção de projetos entregues pela Bexaltec em Angola.
+            Uma selecção de projetos entregues em Angola. Os trabalhos anteriores à
+            constituição da sociedade foram executados pela equipa fundadora da Bexaltec.
           </p>
         </div>
       </section>
@@ -52,16 +63,21 @@ export default function PortfolioPage() {
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--green)', textTransform: 'uppercase', marginBottom: '1rem' }}>
             Casos de Referência
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem', marginBottom: '3rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginBottom: '3rem' }}>
             {projects.filter(p => p.highlight).map((p, i) => (
               <div key={i} className="card-base" style={{ padding: '2rem', borderLeft: `3px solid ${catColors[p.category] ?? 'var(--green)'}` }}>
                 <div style={{ fontSize: 10, letterSpacing: 2, color: catColors[p.category] ?? 'var(--green)', textTransform: 'uppercase', marginBottom: '0.5rem', fontFamily: 'var(--font-mono)' }}>{p.category}</div>
                 <h3 className="font-rajdhani font-bold" style={{ fontSize: 22, color: 'var(--silver2)', marginBottom: '0.5rem', letterSpacing: 0.5 }}>{p.client}</h3>
                 <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7, marginBottom: '1rem' }}>{p.detail}</p>
-                {/* Photo placeholder */}
-                <div style={{ width: '100%', aspectRatio: '16/7', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 6 }}>
-                  <div style={{ fontSize: 24, opacity: 0.2 }}>📷</div>
-                  <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: 1 }}>FOTOGRAFIA DO PROJETO</div>
+                <div style={{ position: 'relative', width: '100%', aspectRatio: '16/7', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
+                  <Image
+                    src={DESTAQUE_FOTO[i] ?? OBRAS_INFRA[0].src}
+                    alt={DESTAQUE_ALT[i] ?? OBRAS_INFRA[0].alt}
+                    fill
+                    sizes="(max-width: 760px) 100vw, 50vw"
+                    style={{ objectFit: 'cover' }}
+                    priority={i === 0}
+                  />
                 </div>
                 <div style={{ marginTop: '0.75rem', fontSize: 10, color: 'var(--forest)', letterSpacing: 1 }}>PROJETO {p.year}</div>
               </div>
@@ -75,9 +91,6 @@ export default function PortfolioPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
             {projects.filter(p => !p.highlight).map((p, i) => (
               <div key={i} className="card-base card-glow" style={{ padding: '1.5rem', transition: 'all 0.25s' }}>
-                <div style={{ width: '100%', aspectRatio: '16/9', background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-                  <div style={{ fontSize: 20, opacity: 0.15 }}>📷</div>
-                </div>
                 <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: `${catColors[p.category] ?? 'var(--green)'}12`, border: `1px solid ${catColors[p.category] ?? 'var(--green)'}22`, color: catColors[p.category] ?? 'var(--green)', display: 'inline-block', marginBottom: '0.5rem' }}>
                   {p.category}
                 </span>
@@ -87,6 +100,21 @@ export default function PortfolioPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── GALERIA COMPLETA ── */}
+      <section style={{ padding: '4rem 2rem', background: 'linear-gradient(135deg, rgba(13,32,68,0.5) 0%, rgba(10,22,40,0.9) 100%)', borderTop: '1px solid var(--border)' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div className="section-badge">Registo de obra</div>
+          <h2 className="font-rajdhani font-black" style={{ fontSize: 'clamp(24px,4vw,36px)', letterSpacing: 1, color: 'var(--text)', marginBottom: '0.75rem' }}>
+            Fotografias das nossas obras
+          </h2>
+          <p style={{ fontSize: 14, color: 'var(--text2)', lineHeight: 1.7, maxWidth: '62ch', marginBottom: '2.5rem' }}>
+            Esteira metálica, cabeamento, bastidores, terminação e identificação. Nenhuma destas
+            imagens é de banco de imagens — todas foram tiradas nas nossas intervenções.
+          </p>
+          <GaleriaObras obras={OBRAS} colunas={4} />
         </div>
       </section>
 

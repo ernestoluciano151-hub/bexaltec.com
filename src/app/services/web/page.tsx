@@ -71,7 +71,7 @@ export default function WebPage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { n: '50+', l: 'Sites Entregues' },
+                { n: 'Turnkey', l: 'Projeto a entrega' },
                 { n: '.ao', l: 'Domínios Registados' },
                 { n: 'VPS', l: 'Hospedagem Gerida' },
                 { n: 'SSL', l: 'Certificados Incluídos' },

@@ -46,7 +46,7 @@ const allServices = [
     id: 'maintenance', Icon: Wrench, color: '#FFB74D',
     title: 'Assistência Técnica', href: '/services/maintenance',
     desc: 'Contratos de manutenção, helpdesk remoto e presencial, UPS e energia.',
-    highlights: ['Contratos mensais', 'Helpdesk 24/7', 'UPS & Geradores', 'SLA garantido'],
+    highlights: ['Contratos mensais', 'Helpdesk remoto e presencial', 'UPS & Geradores', 'SLA contratualizado'],
   },
   {
     id: 'consulting', Icon: Building2, color: '#A5D6A7',

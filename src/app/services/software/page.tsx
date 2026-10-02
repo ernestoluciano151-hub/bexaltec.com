@@ -65,7 +65,7 @@ export default function SoftwarePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { n: '30+', l: 'Apps Entregues' },
+                { n: 'Turnkey', l: 'Análise a entrega' },
                 { n: 'React', l: 'Next.js · Flutter' },
                 { n: 'API', l: 'MULTICAIXA Integrado' },
                 { n: '100%', l: 'Código Proprietário' },

@@ -67,8 +67,8 @@ export default function CommercePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { n: '12+', l: 'Marcas Parceiras' },
-                { n: '1000+', l: 'Equipamentos Vendidos' },
+                { n: 'Turnkey', l: 'Importação e instalação' },
+                { n: '11', l: 'CAEs Licenciadas' },
                 { n: 'Nacional', l: 'Entrega em Angola' },
                 { n: '12m', l: 'Garantia Incluída' },
               ].map((s, i) => (

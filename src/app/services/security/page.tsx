@@ -66,10 +66,10 @@ export default function SecurityPage() {
             {/* Stats */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               {[
-                { n: '300+', l: 'Câmeras Instaladas' },
-                { n: '50+', l: 'Projetos de Segurança' },
+                { n: 'CCTV IP', l: 'Hikvision · Dahua' },
+                { n: 'Turnkey', l: 'Projeto a entrega' },
                 { n: '24/7', l: 'Monitoramento Disponível' },
-                { n: '5', l: 'Anos de Experiência' },
+                { n: '11', l: 'CAEs Licenciadas' },
               ].map((s, i) => (
                 <div key={i} style={{ padding: '1.5rem', background: 'rgba(239,83,80,0.04)', border: '1px solid rgba(239,83,80,0.14)', borderRadius: 14, textAlign: 'center' }}>
                   <div className="font-rajdhani font-black" style={{ fontSize: 36, color: '#EF5350', lineHeight: 1 }}>{s.n}</div>
