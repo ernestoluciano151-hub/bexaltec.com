@@ -57,10 +57,10 @@ export function Sidebar({ user, navItems, variant = 'client', topbarLabel, child
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 14, fontWeight: 700, color: 'var(--green)', flexShrink: 0,
           }}>
-            {user.name.charAt(0).toUpperCase()}
+            {(user.name?.trim() || user.email || '?').charAt(0).toUpperCase()}
           </div>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--silver2)' }}>{user.name}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--silver2)' }}>{user.name?.trim() || user.email || 'Utilizador'}</div>
             <div style={{ fontSize: 10, color: variant === 'admin' ? 'var(--forest)' : 'var(--slate)' }}>
               {variant === 'admin' ? 'Administrador' : (user.company || user.email)}
             </div>
@@ -145,7 +145,7 @@ export function PortalTopBar({ user, label, isAdmin }: TopBarProps) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontSize: 12, fontWeight: 700, color: 'var(--green)',
       }}>
-        {user.name.charAt(0).toUpperCase()}
+        {(user.name?.trim() || user.email || '?').charAt(0).toUpperCase()}
       </div>
     </div>
   )

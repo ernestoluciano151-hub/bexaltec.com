@@ -1,6 +1,6 @@
 // ─── Dashboard summary queries (cached) ──────────────────────────────────
 import { db } from '@/lib/db'
-import { tickets, repairJobs, companies, users, invoices, workOrders } from '@/lib/schema'
+import { tickets, repairJobs, companies, users, invoices, workOrders, contracts } from '@/lib/schema'
 import { eq, count, sql, and, gte } from 'drizzle-orm'
 import { withCache, CACHE_TAGS, TTL } from '@/lib/cache'
 
@@ -41,8 +41,8 @@ export const getAdminDashboard = withCache(
 
 // Client portal dashboard summary
 export const getClientDashboard = withCache(
-  async (clientId: number) => {
-    const [[openTickets], [activeRepairs], [pendingInvoices]] = await Promise.all([
+  async (clientId: number, companyId?: number | null) => {
+    const [[openTickets], [activeRepairs], [pendingInvoices], [activeContracts]] = await Promise.all([
       db.select({ count: count() })
         .from(tickets)
         .where(and(eq(tickets.clientId, clientId), eq(tickets.status, 'open'))),
@@ -59,16 +59,29 @@ export const getClientDashboard = withCache(
         .where(
           and(eq(invoices.clientId, clientId), eq(invoices.status, 'sent'))
         ),
+      // Contratos em vigor da empresa do cliente: já começaram e ainda não terminaram.
+      companyId
+        ? db.select({ count: count() })
+            .from(contracts)
+            .where(
+              and(
+                eq(contracts.companyId, companyId),
+                sql`${contracts.startDate} <= NOW()`,
+                sql`${contracts.endDate} >= NOW()`,
+              )
+            )
+        : Promise.resolve([{ count: 0 }]),
     ])
 
     return {
       openTickets:     Number(openTickets?.count ?? 0),
       activeRepairs:   Number(activeRepairs?.count ?? 0),
       pendingInvoices: Number(pendingInvoices?.count ?? 0),
+      activeContracts: Number(activeContracts?.count ?? 0),
     }
   },
   ['dashboard', 'client-summary'],
-  [CACHE_TAGS.dashboard],
+  [CACHE_TAGS.dashboard, CACHE_TAGS.contracts],
   TTL.SHORT,
 )
 

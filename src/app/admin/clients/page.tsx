@@ -10,6 +10,7 @@ interface Client {
   name: string
   email: string
   phone: string | null
+  companyId: number | null
   companyName: string | null
   isActive: boolean | null
   lastLoginAt: string | null
@@ -20,8 +21,10 @@ export default function ClientsAdminPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [companyFilter, setCompanyFilter] = useState('')
+  const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const [editTarget, setEditTarget] = useState<Client | null>(null)
-  const [form, setForm] = useState({ name: '', email: '', phone: '', isActive: true })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', isActive: true, companyId: '' })
+  const [companyList, setCompanyList] = useState<{ id: number; name: string; nif: string | null }[]>([])
   const [isPending, startTransition] = useTransition()
   const { show, ToastComponent } = useToast()
 
@@ -30,6 +33,10 @@ export default function ClientsAdminPage() {
       .then(r => r.json())
       .then(data => { setClients(data.clients ?? []); setLoading(false) })
       .catch(() => setLoading(false))
+    fetch('/api/admin/companies')
+      .then(r => r.json())
+      .then(data => setCompanyList(data.companies ?? []))
+      .catch(() => {})
   }, [])
 
   const companies = Array.from(new Set(clients.map(c => c.companyName).filter(Boolean))) as string[]
@@ -38,20 +45,27 @@ export default function ClientsAdminPage() {
     const q = search.toLowerCase()
     const matchSearch = !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || (c.phone ?? '').toLowerCase().includes(q)
     const matchCompany = !companyFilter || c.companyName === companyFilter
-    return matchSearch && matchCompany
+    const matchActive =
+      activeFilter === 'all' ? true :
+      activeFilter === 'active' ? !!c.isActive : !c.isActive
+    return matchSearch && matchCompany && matchActive
   })
 
   function openEdit(c: Client) {
     setEditTarget(c)
-    setForm({ name: c.name, email: c.email, phone: c.phone ?? '', isActive: c.isActive ?? true })
+    setForm({ name: c.name, email: c.email, phone: c.phone ?? '', isActive: c.isActive ?? true, companyId: c.companyId ? String(c.companyId) : '' })
   }
 
   function handleSave() {
     if (!editTarget) return
     startTransition(async () => {
-      const res = await adminUpdateUser(editTarget.id, form)
+      const companyId = form.companyId ? Number(form.companyId) : null
+      const res = await adminUpdateUser(editTarget.id, { ...form, companyId })
       if (res.error) { show(res.error, 'error'); return }
-      setClients(prev => prev.map(c => c.id === editTarget.id ? { ...c, ...form } : c))
+      const companyName = companyList.find(co => co.id === companyId)?.name ?? null
+      setClients(prev => prev.map(c => c.id === editTarget.id
+        ? { ...c, ...form, email: form.email.trim().toLowerCase(), companyId, companyName }
+        : c))
       setEditTarget(null)
       show('Cliente actualizado com sucesso.', 'success')
     })
@@ -62,7 +76,11 @@ export default function ClientsAdminPage() {
       <PageHeader
         supra="CRM Admin"
         title="Gestão de Clientes"
-        sub={`${clients.length} clientes registados`}
+        sub={
+          filtered.length === clients.length
+            ? `${clients.length} ${clients.length === 1 ? 'cliente registado' : 'clientes registados'}`
+            : `${filtered.length} de ${clients.length} clientes`
+        }
       />
 
       {/* Filters */}
@@ -78,17 +96,24 @@ export default function ClientsAdminPage() {
           {companies.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
         <div style={{ display: 'flex', gap: '0.4rem' }}>
-          {(['all', 'active', 'inactive'] as const).map(f => (
-            <button
-              key={f}
-              onClick={() => {
-                if (f === 'all') setCompanyFilter('')
-              }}
-              style={{ fontSize: 11, padding: '6px 14px', borderRadius: 20, cursor: 'pointer', border: '1px solid var(--border)', color: 'var(--slate)', background: 'transparent', fontFamily: 'inherit' }}
-            >
-              {f === 'all' ? `Todos (${clients.length})` : f === 'active' ? `Ativos (${clients.filter(c => c.isActive).length})` : `Inativos (${clients.filter(c => !c.isActive).length})`}
-            </button>
-          ))}
+          {(['all', 'active', 'inactive'] as const).map(f => {
+            const on = activeFilter === f
+            return (
+              <button
+                key={f}
+                onClick={() => setActiveFilter(f)}
+                style={{
+                  fontSize: 11, padding: '6px 14px', borderRadius: 20, cursor: 'pointer',
+                  border: `1px solid ${on ? 'var(--green2)' : 'var(--border)'}`,
+                  color: on ? 'var(--green)' : 'var(--slate)',
+                  background: on ? 'rgba(0,230,118,0.08)' : 'transparent',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {f === 'all' ? `Todos (${clients.length})` : f === 'active' ? `Ativos (${clients.filter(c => c.isActive).length})` : `Inativos (${clients.filter(c => !c.isActive).length})`}
+              </button>
+            )
+          })}
         </div>
       </div>
 
@@ -141,7 +166,7 @@ export default function ClientsAdminPage() {
                     {c.lastLoginAt ? new Date(c.lastLoginAt).toLocaleDateString('pt-AO') : '—'}
                   </td>
                   <td>
-                    <StatusBadge status={c.isActive ? 'active' : 'closed'} />
+                    <StatusBadge status={c.isActive ? 'active' : 'inactive'} />
                   </td>
                   <td>
                     <button
@@ -169,6 +194,17 @@ export default function ClientsAdminPage() {
           </FormField>
           <FormField label="Telefone">
             <input className="input-field" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))} />
+          </FormField>
+          <FormField label="Empresa">
+            <select className="input-field" value={form.companyId} onChange={e => setForm(p => ({ ...p, companyId: e.target.value }))}>
+              <option value="">— Sem empresa —</option>
+              {companyList.map(co => (
+                <option key={co.id} value={co.id}>{co.name}{co.nif ? ` · NIF ${co.nif}` : ''}</option>
+              ))}
+            </select>
+            <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
+              Os novos tickets e reparações deste cliente ficam associados a esta empresa.
+            </div>
           </FormField>
           <FormField label="Estado">
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>

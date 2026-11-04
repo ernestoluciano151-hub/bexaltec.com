@@ -18,6 +18,8 @@ export const getAllCompanies = withCache(
         contractType: companies.contractType,
         revenue:      companies.revenue,
         isActive:     companies.isActive,
+        website:      companies.website,
+        address:      companies.address,
         createdAt:    companies.createdAt,
       })
       .from(companies)
@@ -77,6 +79,6 @@ export const getAllClients = withCache(
       .orderBy(desc(users.createdAt))
   },
   ['clients', 'all'],
-  [CACHE_TAGS.users],
+  [CACHE_TAGS.users, CACHE_TAGS.companies],
   TTL.MEDIUM,
 )

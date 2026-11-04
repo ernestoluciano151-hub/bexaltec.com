@@ -6,10 +6,7 @@ import { repairJobs } from '@/lib/schema'
 import { eq } from 'drizzle-orm'
 import { getSession } from '@/lib/auth-server'
 import { CACHE_TAGS } from '@/lib/cache'
-
-function generateRef() {
-  return `BX-REP-${Date.now().toString().slice(-6)}`
-}
+import { nextRef } from '@/lib/crm'
 
 export async function createRepair(data: {
   deviceName: string
@@ -26,7 +23,7 @@ export async function createRepair(data: {
     const [repair] = await db
       .insert(repairJobs)
       .values({
-        ref:        generateRef(),
+        ref:        await nextRef('BX-REP'),
         deviceName: data.deviceName,
         brand:      data.brand,
         model:      data.model,
@@ -56,7 +53,11 @@ export async function updateRepairStatus(
   const session = await getSession()
   if (!session || session.role === 'client') return { error: 'Sem permissão.' }
 
-  const { laborCost, partsCost, totalCost, ...extraRest } = extra ?? {}
+  // Lista branca explícita. Nunca espalhar o objeto recebido: uma server action é um
+  // endpoint HTTP público e os tipos do TypeScript desaparecem em runtime — um spread
+  // deixaria passar campos como clientId e permitiria transferir a reparação para
+  // outro cliente.
+  const { diagnosis, resolution, eta, laborCost, partsCost, totalCost } = extra ?? {}
   try {
     await db
       .update(repairJobs)
@@ -64,7 +65,9 @@ export async function updateRepairStatus(
         status,
         updatedAt:   new Date(),
         deliveredAt: status === 'delivered' ? new Date() : undefined,
-        ...extraRest,
+        diagnosis:   typeof diagnosis  === 'string' ? diagnosis.slice(0, 4000)  : undefined,
+        resolution:  typeof resolution === 'string' ? resolution.slice(0, 4000) : undefined,
+        eta:         eta instanceof Date ? eta : undefined,
         laborCost:   laborCost != null ? String(laborCost) : undefined,
         partsCost:   partsCost != null ? String(partsCost) : undefined,
         totalCost:   totalCost != null ? String(totalCost) : undefined,

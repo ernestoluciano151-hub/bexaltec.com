@@ -1,19 +1,28 @@
-'use client'
-import { useEffect, useState } from 'react'
+// Casca do portal do cliente.
+//
+// Server Component de propósito. A versão anterior era 'use client' e fazia a
+// autenticação num useEffect, pelo que o HTML inicial de qualquer página do portal
+// era apenas "A carregar..." — o conteúdo só entrava depois da hidratação. Era
+// também redundante: o middleware já verifica criptograficamente o token antes de
+// a página renderizar.
+//
+// Resolve ao mesmo tempo o nome vazio na barra lateral: a sessão traz o nome real,
+// em vez do objeto mínimo que getUser() devolvia a partir do cookie de papel.
+
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Sidebar, PortalTopBar } from '@/components/ui/Sidebar'
-import { getUser } from '@/lib/auth'
+import { getSession } from '@/lib/auth-server'
 import type { AuthUser } from '@/lib/auth'
 
 const navItems = [
   { href: '/dashboard', label: 'Visão Geral', ico: '📊' },
   { href: '/dashboard/tickets', label: 'Tickets de Suporte', ico: '🎫' },
-  { href: '/dashboard/services', label: 'Os Meus Serviços', ico: '⚙️' },
   { href: '/dashboard/repair-status', label: 'Estado de Reparações', ico: '🔧' },
   { href: '/dashboard/equipment', label: 'Equipamentos', ico: '💻' },
   { href: '/dashboard/quotes', label: 'Orçamentos', ico: '📋' },
   { href: '/dashboard/contracts', label: 'Contratos', ico: '📄' },
+  { href: '/dashboard/renewals', label: 'Renovações', ico: '🔁' },
   { href: '/dashboard/billing', label: 'Faturação', ico: '🧾' },
   { href: '/dashboard/downloads', label: 'Documentos', ico: '📁' },
   { href: '/dashboard/chat', label: 'Falar com o Suporte', ico: '💬' },
@@ -22,22 +31,18 @@ const navItems = [
   { href: '/dashboard/profile', label: 'O Meu Perfil', ico: '👤' },
 ]
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const [user, setUser] = useState<AuthUser | null>(null)
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const session = await getSession()
+  if (!session) redirect('/login')
+  if (session.role === 'admin') redirect('/admin')
 
-  useEffect(() => {
-    const u = getUser()
-    if (!u) { router.push('/login'); return }
-    if (u.role === 'admin') { router.push('/admin'); return }
-    setUser(u)
-  }, [router])
-
-  if (!user) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy)' }}>
-      <div style={{ color: 'var(--green)', fontSize: 14 }}>A carregar...</div>
-    </div>
-  )
+  const user: AuthUser = {
+    id:        session.id,
+    name:      session.name,
+    email:     session.email,
+    role:      session.role,
+    companyId: session.companyId,
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--navy3)' }}>

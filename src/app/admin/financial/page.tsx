@@ -4,6 +4,7 @@ import { updateInvoiceStatus, createInvoice } from '@/lib/actions/admin'
 import {
   PageHeader, SearchBar, StatusBadge, StatCard, Modal, FormField, useToast, EmptyState, CardSkeleton,
 } from '@/components/ui/shared'
+import { PartyPicker, type Parties } from '@/components/admin/PartyPicker'
 
 interface Invoice {
   id: number
@@ -39,7 +40,10 @@ const TABS: { key: string; label: string }[] = [
   { key: 'cancelled', label: 'Canceladas' },
 ]
 
-const emptyForm = { amount: '', tax: '', total: '', dueDate: '', notes: '' }
+const emptyForm = { amount: '', tax: '', total: '', dueDate: '', notes: '', workOrderId: '' }
+const emptyParties: Parties = { clientId: '', companyId: '' }
+
+interface WoOption { id: number; ref: string; title: string; clientId: number | null; status: string }
 
 export default function FinancialAdminPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
@@ -49,6 +53,8 @@ export default function FinancialAdminPage() {
   const [search, setSearch] = useState('')
   const [showCreate, setShowCreate] = useState(false)
   const [form, setForm] = useState({ ...emptyForm })
+  const [parties, setParties] = useState<Parties>({ ...emptyParties })
+  const [woOptions, setWoOptions] = useState<WoOption[]>([])
   const [isPending, startTransition] = useTransition()
   const { show, ToastComponent } = useToast()
 
@@ -58,7 +64,14 @@ export default function FinancialAdminPage() {
       .then(data => { setInvoices(data.invoices ?? []); setSummary(data.summary ?? {}) })
       .catch(() => {})
       .finally(() => setLoading(false))
+    fetch('/api/admin/work-orders')
+      .then(r => r.json())
+      .then(data => setWoOptions(data.workOrders ?? []))
+      .catch(() => {})
   }, [])
+
+  // Só as OT do cliente escolhido, para a fatura não ficar ligada à OT de outro.
+  const clientWos = woOptions.filter(w => parties.clientId && String(w.clientId) === parties.clientId && w.status !== 'cancelled')
 
   const filtered = invoices.filter(i => {
     const q = search.toLowerCase()
@@ -80,6 +93,9 @@ export default function FinancialAdminPage() {
   function handleCreate() {
     startTransition(async () => {
       const res = await createInvoice({
+        clientId: Number(parties.clientId),
+        companyId: parties.companyId ? Number(parties.companyId) : null,
+        workOrderId: form.workOrderId ? Number(form.workOrderId) : null,
         amount: Number(form.amount),
         tax: form.tax ? Number(form.tax) : undefined,
         total: Number(form.total),
@@ -90,6 +106,7 @@ export default function FinancialAdminPage() {
       fetch('/api/admin/invoices').then(r => r.json()).then(data => { setInvoices(data.invoices ?? []); setSummary(data.summary ?? {}) })
       setShowCreate(false)
       setForm({ ...emptyForm })
+      setParties({ ...emptyParties })
       show('Fatura criada.', 'success')
     })
   }
@@ -213,6 +230,18 @@ export default function FinancialAdminPage() {
       {/* Create modal */}
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Nova Fatura" maxWidth={480}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+          <PartyPicker value={parties} onChange={p => { setParties(p); setForm(prev => ({ ...prev, workOrderId: '' })) }} />
+          <FormField label="Ordem de Trabalho">
+            <select
+              className="input-field"
+              value={form.workOrderId}
+              disabled={!parties.clientId}
+              onChange={e => setForm(p => ({ ...p, workOrderId: e.target.value }))}
+            >
+              <option value="">— Nenhuma —</option>
+              {clientWos.map(w => <option key={w.id} value={w.id}>{w.ref} · {w.title}</option>)}
+            </select>
+          </FormField>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
             <FormField label="Valor Base (Kz)" required>
               <input className="input-field" type="number" value={form.amount} onChange={f('amount')} placeholder="0" />
@@ -234,7 +263,7 @@ export default function FinancialAdminPage() {
             <button onClick={() => setShowCreate(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid var(--border)', background: 'none', color: 'var(--slate)', cursor: 'pointer', fontSize: 13 }}>
               Cancelar
             </button>
-            <button onClick={handleCreate} disabled={isPending || !form.amount || !form.total || !form.dueDate} className="btn-primary" style={{ fontSize: 13, padding: '8px 20px' }}>
+            <button onClick={handleCreate} disabled={isPending || !form.amount || !form.total || !form.dueDate || !parties.clientId || !parties.companyId} className="btn-primary" style={{ fontSize: 13, padding: '8px 20px' }}>
               {isPending ? 'A criar...' : 'Criar Fatura'}
             </button>
           </div>

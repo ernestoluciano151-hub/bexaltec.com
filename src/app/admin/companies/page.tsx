@@ -15,6 +15,8 @@ interface Company {
   contractType: string | null
   revenue: string | number | null
   isActive: boolean | null
+  website: string | null
+  address: string | null
 }
 
 type ContractType = 'basic' | 'business' | 'enterprise'
@@ -60,6 +62,8 @@ export default function CompaniesAdminPage() {
 
   function openEdit(c: Company) {
     setEditTarget(c)
+    // O website e a morada têm de vir do registo real. Antes eram preenchidos com ''
+    // e a gravação apagava-os em silêncio da base de dados.
     setForm({
       name: c.name,
       nif: c.nif ?? '',
@@ -67,8 +71,8 @@ export default function CompaniesAdminPage() {
       phone: c.phone ?? '',
       email: c.email ?? '',
       contractType: (c.contractType as ContractType) ?? 'basic',
-      website: '',
-      address: '',
+      website: c.website ?? '',
+      address: c.address ?? '',
     })
     setShowModal(true)
   }
@@ -207,7 +211,7 @@ export default function CompaniesAdminPage() {
               <input className="input-field" type="email" value={form.email} onChange={f('email')} />
             </FormField>
             <FormField label="Website">
-              <input className="input-field" value={form.website} onChange={f('website')} />
+              <input className="input-field" value={form.website} onChange={f('website')} placeholder="exemplo.co.ao" />
             </FormField>
             <FormField label="Tipo de Contrato">
               <select className="input-field" value={form.contractType} onChange={f('contractType')}>
@@ -217,6 +221,9 @@ export default function CompaniesAdminPage() {
               </select>
             </FormField>
           </div>
+          <FormField label="Morada">
+            <input className="input-field" value={form.address} onChange={f('address')} placeholder="Rua, bairro, município" />
+          </FormField>
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
             <button onClick={() => { setShowModal(false); setEditTarget(null) }} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid var(--border)', background: 'none', color: 'var(--slate)', cursor: 'pointer', fontSize: 13 }}>
               Cancelar

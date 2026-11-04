@@ -18,7 +18,7 @@ const solutions = [
   { title: 'Wireless Wi-Fi 6', items: ['Access Points Ubiquiti/Cisco', 'Cobertura total de espaços', 'Portal cativo para hóspedes', 'Roaming transparente', 'Gestão centralizada UniFi'] },
   { title: 'VPN & Conectividade', items: ['VPN site-to-site IPSec', 'VPN de acesso remoto SSL', 'SD-WAN para múltiplas filiais', 'MPLS e circuitos dedicados', 'Failover automático'] },
   { title: 'Domínios .ao & DNS', items: ['Registo de domínios .ao', 'DNS gerido e redundante', 'Email corporativo @empresa.ao', 'Certificados SSL/TLS', 'Proteção DDoS incluída'] },
-  { title: 'Monitoramento NOC', items: ['Monitoramento 24/7 proativo', 'Alertas em tempo real', 'Dashboard de performance', 'Relatórios mensais', 'SLA documentado'] },
+  { title: 'Monitorização de Rede', items: ['Monitorização contínua por SNMP', 'Alertas automáticos por email', 'Dashboard de desempenho', 'Relatórios mensais', 'SLA documentado em contrato'] },
 ]
 
 export default function NetworkPage() {

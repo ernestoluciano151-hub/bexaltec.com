@@ -1,9 +1,10 @@
-'use client'
-import { useEffect, useState } from 'react'
+// Casca do CRM. Server Component, pelo mesmo motivo do portal do cliente: a versão
+// anterior autenticava num useEffect e o HTML inicial era só o loader. O middleware
+// já bloqueia /admin a quem não é administrador antes de a página renderizar.
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Sidebar, PortalTopBar } from '@/components/ui/Sidebar'
-import { getUser } from '@/lib/auth'
+import { getSession } from '@/lib/auth-server'
 import type { AuthUser } from '@/lib/auth'
 
 const navItems = [
@@ -26,22 +27,18 @@ const navItems = [
   { href: '/admin/reports', label: 'Relatórios', ico: '📈' },
 ]
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter()
-  const [user, setUser] = useState<AuthUser | null>(null)
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await getSession()
+  if (!session) redirect('/login')
+  if (session.role !== 'admin') redirect('/dashboard')
 
-  useEffect(() => {
-    const u = getUser()
-    if (!u) { router.push('/login'); return }
-    if (u.role !== 'admin') { router.push('/dashboard'); return }
-    setUser(u)
-  }, [router])
-
-  if (!user) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--navy)' }}>
-      <div style={{ color: 'var(--green)', fontSize: 14 }}>A carregar...</div>
-    </div>
-  )
+  const user: AuthUser = {
+    id:        session.id,
+    name:      session.name,
+    email:     session.email,
+    role:      session.role,
+    companyId: session.companyId,
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--navy3)' }}>

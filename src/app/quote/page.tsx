@@ -26,6 +26,7 @@ export default function QuotePage() {
   const [selectedServices, setSelectedServices] = useState<string[]>([])
   const [formSent, setFormSent] = useState(false)
   const [formRef, setFormRef] = useState('')
+  const [formEmailed, setFormEmailed] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -42,7 +43,7 @@ export default function QuotePage() {
     const str = (k: string) => (fd.get(k) as string | null)?.trim() ?? ''
     const province = str('province')
 
-    const { ref, error: err } = await createQuote({
+    const { ref, error: err, emailed } = await createQuote({
       name:     str('name'),
       email:    str('email'),
       phone:    str('phone'),
@@ -63,6 +64,7 @@ export default function QuotePage() {
     }
 
     setFormRef(ref)
+    setFormEmailed(emailed !== false)
     setFormSent(true)
     setSubmitting(false)
   }
@@ -93,6 +95,18 @@ export default function QuotePage() {
               <div style={{ fontSize: 12, color: 'var(--slate)' }}>
                 Referência: <span style={{ color: 'var(--green)', fontFamily: 'var(--font-mono)' }}>{formRef}</span>
               </div>
+              {!formEmailed && (
+                /* O pedido ficou gravado, mas o aviso por email à equipa não saiu.
+                   Dizemo-lo ao cliente em vez de o deixar à espera. */
+                <p style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.7, marginTop: '1.25rem', borderTop: '1px solid var(--border)', paddingTop: '1.25rem' }}>
+                  O seu pedido ficou registado com esta referência. Se for urgente, fale
+                  connosco diretamente por{' '}
+                  <a href={whatsappLink(`Olá Bexaltec, enviei o pedido de orçamento ${formRef}.`)} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--green)' }}>
+                    WhatsApp
+                  </a>{' '}
+                  ou {CONTACT.phoneDisplay}.
+                </p>
+              )}
               <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <Link href="/" className="btn-secondary" style={{ fontSize: 13, padding: '10px 20px' }}>Voltar ao início</Link>
                 <Link href="/login" className="btn-primary" style={{ fontSize: 13, padding: '10px 20px' }}>Aceder ao portal</Link>

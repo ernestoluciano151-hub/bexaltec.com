@@ -6,7 +6,7 @@ import { ArrowRight, Wrench, CheckCircle2 } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Assistência Técnica & Manutenção — Bexaltec · Suporte TI Angola',
-  description: 'Contratos de manutenção TI, helpdesk remoto e presencial, suporte 24/7 e SLA garantido para empresas em Angola.',
+  description: 'Contratos de manutenção TI, helpdesk remoto e presencial, com SLA definido em contrato para empresas em Angola.',
   keywords: 'manutenção TI Angola, helpdesk Angola, suporte informático Luanda, contrato manutenção Angola, SLA Angola',
 }
 
@@ -23,7 +23,7 @@ const plans = [
   },
   {
     name: 'Enterprise', price: 'Sob consulta', desc: 'Para grandes organizações',
-    items: ['Equipamentos ilimitados', 'Técnico dedicado on-site', 'SLA 2h resposta', 'Monitoramento 24/7 NOC', 'Relatório semanal', 'UPS e geradores incluídos'],
+    items: ['Equipamentos ilimitados', 'Técnico dedicado on-site', 'SLA de 2h em horário de expediente', 'Monitorização contínua com alertas', 'Relatório semanal', 'Manutenção de UPS e geradores'],
   },
 ]
 

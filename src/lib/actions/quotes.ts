@@ -9,6 +9,8 @@ import { db } from '@/lib/db'
 import { quotes, users, notifications } from '@/lib/schema'
 import { getSession } from '@/lib/auth-server'
 import { CACHE_TAGS } from '@/lib/cache'
+import { sendMail, buildQuoteMail } from '@/lib/email'
+import { nextRef, clientIp, withinLimit } from '@/lib/crm'
 
 export interface QuoteInput {
   name: string
@@ -25,6 +27,8 @@ export interface QuoteInput {
 export interface QuoteResult {
   ref: string | null
   error: string | null
+  /** O pedido chegou à caixa de info@bexaltec.com? Nunca afirmado sem confirmação. */
+  emailed?: boolean
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
@@ -34,12 +38,6 @@ function clean(v: unknown, max: number): string | undefined {
   if (typeof v !== 'string') return undefined
   const t = v.trim().slice(0, max)
   return t.length ? t : undefined
-}
-
-function generateRef() {
-  const year = new Date().getFullYear()
-  const rand = Math.floor(Math.random() * 900000) + 100000
-  return `BX-ORC-${year}-${rand}`
 }
 
 export async function createQuote(input: QuoteInput): Promise<QuoteResult> {
@@ -55,17 +53,19 @@ export async function createQuote(input: QuoteInput): Promise<QuoteResult> {
     ? input.services.filter(s => typeof s === 'string').slice(0, 20).join(', ').slice(0, 500)
     : undefined
 
+  // Limite: 5 pedidos por hora por IP e 5 por hora por email. O formulário é
+  // público e cada pedido notifica os administradores e envia um email.
+  const ip = await clientIp()
+  if (!(await withinLimit('quote-ip', ip, 5, 60)) || !(await withinLimit('quote-email', email, 5, 60))) {
+    return { ref: null, error: 'Recebemos vários pedidos seguidos a partir desta ligação. Aguarde uma hora ou contacte-nos por WhatsApp.' }
+  }
+
   // Se o pedido vier de dentro do portal, associamos ao utilizador.
   const session = await getSession()
 
   try {
-    // Referência única — em caso de colisão (improvável) tenta de novo.
-    let ref = generateRef()
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const [taken] = await db.select({ id: quotes.id }).from(quotes).where(eq(quotes.ref, ref)).limit(1)
-      if (!taken) break
-      ref = generateRef()
-    }
+    // Referência sequencial por ano: BX-ORC-2026-0001.
+    const ref = await nextRef('BX-ORC')
 
     const [quote] = await db
       .insert(quotes)
@@ -105,8 +105,38 @@ export async function createQuote(input: QuoteInput): Promise<QuoteResult> {
       console.error('[action] createQuote → notificação admin:', notifyErr)
     }
 
+    // Enviar o pedido para a caixa de entrada da equipa.
+    // O pedido já está gravado; uma falha de email não o pode perder nem
+    // transformar num erro para o cliente.
+    let emailed = false
+    try {
+      const mail = buildQuoteMail({
+        ref:        quote.ref,
+        name,
+        email,
+        phone:      clean(input.phone, 40),
+        company:    clean(input.company, 160),
+        province:   clean(input.province, 60),
+        services,
+        budget:     clean(input.budget, 60),
+        deadline:   clean(input.deadline, 60),
+        message:    clean(input.message, 4000),
+        fromPortal: Boolean(session),
+      })
+      const res = await sendMail({ ...mail, replyTo: email })
+      emailed = res.sent
+      if (!res.sent) {
+        console.error(
+          `[action] createQuote → o pedido ${quote.ref} ficou gravado mas não saiu email (${res.reason}).` +
+          (res.reason === 'not_configured' ? ' Configure RESEND_API_KEY e MAIL_FROM.' : ''),
+        )
+      }
+    } catch (mailErr) {
+      console.error('[action] createQuote → envio de email:', mailErr)
+    }
+
     revalidateTag(CACHE_TAGS.quotes)
-    return { ref: quote.ref, error: null }
+    return { ref: quote.ref, error: null, emailed }
   } catch (err) {
     console.error('[action] createQuote:', err)
     return { ref: null, error: 'Não foi possível registar o pedido. Tente novamente ou contacte-nos por WhatsApp.' }

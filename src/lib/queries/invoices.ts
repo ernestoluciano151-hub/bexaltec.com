@@ -4,6 +4,20 @@ import { invoices, companies, users } from '@/lib/schema'
 import { eq, desc, and, sum, sql } from 'drizzle-orm'
 import { withCache, CACHE_TAGS, TTL } from '@/lib/cache'
 
+// Estado efetivo da fatura.
+//
+// O estado `overdue` nunca era atribuído por ninguém — não há tarefa agendada que o
+// escreva — pelo que o cartão "Em Atraso" ficava permanentemente a zero mesmo com
+// faturas vencidas há meses. Em vez de depender de um job, o vencimento é derivado
+// aqui: uma fatura enviada cuja data-limite já passou está em atraso, por definição.
+// Assim o portal, a listagem e os totais dizem todos a mesma coisa.
+export type EffectiveInvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
+
+const effectiveStatus = sql<EffectiveInvoiceStatus>`
+  CASE WHEN ${invoices.status} = 'sent' AND ${invoices.dueDate} < NOW()
+       THEN 'overdue' ELSE ${invoices.status} END
+`
+
 // All invoices for a client (portal billing page)
 export const getClientInvoices = withCache(
   async (clientId: number) => {
@@ -11,7 +25,7 @@ export const getClientInvoices = withCache(
       .select({
         id:        invoices.id,
         ref:       invoices.ref,
-        status:    invoices.status,
+        status:    effectiveStatus,
         amount:    invoices.amount,
         tax:       invoices.tax,
         total:     invoices.total,
@@ -37,7 +51,7 @@ export const getAllInvoices = withCache(
       .select({
         id:          invoices.id,
         ref:         invoices.ref,
-        status:      invoices.status,
+        status:      effectiveStatus,
         amount:      invoices.amount,
         total:       invoices.total,
         currency:    invoices.currency,
@@ -64,12 +78,12 @@ export const getInvoiceSummary = withCache(
   async () => {
     const rows = await db
       .select({
-        status: invoices.status,
+        status: effectiveStatus,
         total:  sql<number>`COALESCE(SUM(${invoices.total}), 0)`,
         count:  sql<number>`COUNT(*)`,
       })
       .from(invoices)
-      .groupBy(invoices.status)
+      .groupBy(effectiveStatus)
 
     return Object.fromEntries(rows.map(r => [r.status, { total: Number(r.total), count: Number(r.count) }]))
   },

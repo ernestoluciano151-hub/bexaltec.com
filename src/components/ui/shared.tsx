@@ -35,6 +35,8 @@ const STATUS_MAP: Record<string, { cls: string; label: string }> = {
   sent:          { cls: 'badge-yellow',  label: 'Enviada' },
   paid:          { cls: 'badge-green',   label: 'Paga' },
   overdue:       { cls: 'badge-red',     label: 'Em Atraso' },
+  // Conta de utilizador
+  inactive:      { cls: 'badge-red',     label: 'Inativo' },
   // Work order
   pending:       { cls: 'badge-yellow',  label: 'Pendente' },
   completed:     { cls: 'badge-green',   label: 'Concluída' },

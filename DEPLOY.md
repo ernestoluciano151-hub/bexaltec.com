@@ -15,6 +15,9 @@ de administrador.
 | `DATABASE_URL` | Neon → projeto → *Connection string* | Terminar com `?sslmode=require` |
 | `JWT_SECRET` | `openssl rand -base64 32` | Mínimo 32 caracteres. **Nunca** commitar. |
 | `NEXT_PUBLIC_APP_URL` | — | `https://www.bexaltec.com` |
+| `RESEND_API_KEY` | [resend.com](https://resend.com) → API Keys | Sem ela os pedidos de orçamento **não saem por email** |
+| `MAIL_FROM` | — | `Bexaltec <site@bexaltec.com>` — domínio verificado no Resend |
+| `MAIL_TO` | — | `info@bexaltec.com` (omisso, usa o de `contact.ts`) |
 
 Localmente ficam em `.env.local`; na Vercel em **Project Settings → Environment Variables**
 (marcar Production, Preview e Development).
@@ -98,9 +101,29 @@ todas as contas com papel `admin`.
 - Estados: Novo → Em análise → Proposta enviada → Aceite / Recusado / Expirado
 - O cliente vê os seus pedidos em **Portal do Cliente → Orçamentos**
 
-> Ainda **não há envio de email** automático ao receber um pedido. A notificação
-> aparece dentro do portal. Para email, integrar Resend ou SendGrid em
-> `src/lib/actions/quotes.ts`.
+### Email dos pedidos de orçamento
+
+Cada pedido submetido em `/quote` é enviado para **info@bexaltec.com**, com o
+*reply-to* definido para o email do cliente — responder no Outlook responde
+diretamente a ele. A notificação dentro do portal continua a existir.
+
+**Para o email funcionar são precisos três passos:**
+
+1. Criar conta em [resend.com](https://resend.com).
+2. **Domains → adicionar `bexaltec.com`** e publicar no DNS os registos SPF e DKIM
+   que o Resend indicar. Sem o domínio verificado o envio é recusado.
+3. **API Keys → criar chave** e pôr as três variáveis (`RESEND_API_KEY`,
+   `MAIL_FROM`, `MAIL_TO`) na Vercel, em Production, Preview e Development.
+
+**Enquanto não estiver configurado**, o comportamento é deliberado e honesto: o
+pedido **é gravado na base de dados e aparece em `/admin/quotes`**, não se perde
+nada, mas não sai email. O servidor regista um aviso nos logs da Vercel e o
+cliente vê, no ecrã de confirmação, uma linha a sugerir o WhatsApp se o assunto
+for urgente. **Em nenhum caso o site diz que enviou um email que não enviou.**
+
+> Alternativa ao Resend: o Microsoft 365 permite envio por SMTP, mas exige SMTP
+> AUTH ativo na caixa e a Vercel bloqueia ligações SMTP de saída em serverless.
+> Por isso a integração usa a API HTTP do Resend, que funciona sem portas abertas.
 
 ---
 

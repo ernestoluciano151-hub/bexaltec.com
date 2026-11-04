@@ -11,7 +11,7 @@ export default async function DashboardPage() {
   if (!session) redirect('/login')
 
   const [dash, tickets] = await Promise.all([
-    getClientDashboard(session.id),
+    getClientDashboard(session.id, session.companyId),
     getClientTickets(session.id),
   ])
 
@@ -35,11 +35,11 @@ export default async function DashboardPage() {
         <StatCard ico="🎫" label="Tickets Abertos" value={dash.openTickets} color="var(--green)"
           sub={dash.openTickets > 0 ? 'Requer atenção' : 'Tudo resolvido'} />
         <StatCard ico="🔧" label="Reparações Ativas" value={dash.activeRepairs} color="#42A5F5"
-          sub="Em progresso" />
+          sub={dash.activeRepairs > 0 ? 'Em progresso' : 'Nenhuma em curso'} />
         <StatCard ico="🧾" label="Faturas Pendentes" value={dash.pendingInvoices} color="#FFC107"
-          sub="Aguardam pagamento" />
-        <StatCard ico="📅" label="Próximo Serviço" value="—" color="var(--slate)"
-          sub="Sem data agendada" />
+          sub={dash.pendingInvoices > 0 ? 'Aguardam pagamento' : 'Nada por pagar'} />
+        <StatCard ico="📄" label="Contratos Ativos" value={dash.activeContracts ?? 0} color="var(--slate)"
+          sub={(dash.activeContracts ?? 0) > 0 ? 'Em vigor' : 'Sem contrato ativo'} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.5rem' }}>
@@ -81,8 +81,8 @@ export default async function DashboardPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {[
                 { href: '/dashboard/tickets', ico: '🎫', label: 'Abrir Ticket de Suporte' },
-                { href: '/dashboard/services', ico: '⚙️', label: 'Ver Serviços Contratados' },
-                { href: '/dashboard/billing', ico: '🧾', label: 'Descarregar Faturas' },
+                { href: '/dashboard/contracts', ico: '📄', label: 'Ver Contratos' },
+                { href: '/dashboard/billing', ico: '🧾', label: 'Ver Faturas' },
                 { href: '/dashboard/repair-status', ico: '🔧', label: 'Estado das Reparações' },
               ].map(a => (
                 <Link key={a.href} href={a.href}

@@ -4,6 +4,7 @@ import { createWorkOrder, updateWorkOrderStatus } from '@/lib/actions/admin'
 import {
   PageHeader, SearchBar, StatusBadge, PriorityBadge, Modal, FormField, useToast, EmptyState,
 } from '@/components/ui/shared'
+import { PartyPicker, type Parties } from '@/components/admin/PartyPicker'
 
 interface WorkOrder {
   id: number
@@ -30,6 +31,7 @@ const WO_STATUSES: { value: WoStatus; label: string }[] = [
 ]
 
 const emptyForm = { title: '', description: '', priority: 'medium' as const, scheduledAt: '', value: '' }
+const emptyParties: Parties = { clientId: '', companyId: '', technicianId: '' }
 
 export default function WorkOrdersAdminPage() {
   const [workOrders, setWorkOrders] = useState<WorkOrder[]>([])
@@ -40,6 +42,7 @@ export default function WorkOrdersAdminPage() {
   const [detail, setDetail] = useState<WorkOrder | null>(null)
   const [newStatus, setNewStatus] = useState<WoStatus>('pending')
   const [form, setForm] = useState({ ...emptyForm })
+  const [parties, setParties] = useState<Parties>({ ...emptyParties })
   const [isPending, startTransition] = useTransition()
   const { show, ToastComponent } = useToast()
 
@@ -65,6 +68,9 @@ export default function WorkOrdersAdminPage() {
   function handleCreate() {
     startTransition(async () => {
       const res = await createWorkOrder({
+        clientId: Number(parties.clientId),
+        companyId: parties.companyId ? Number(parties.companyId) : null,
+        technicianId: parties.technicianId ? Number(parties.technicianId) : null,
         title: form.title,
         description: form.description || undefined,
         priority: form.priority,
@@ -75,6 +81,7 @@ export default function WorkOrdersAdminPage() {
       fetch('/api/admin/work-orders').then(r => r.json()).then(data => setWorkOrders(data.workOrders ?? []))
       setShowCreate(false)
       setForm({ ...emptyForm })
+      setParties({ ...emptyParties })
       show('Ordem de Trabalho criada.', 'success')
     })
   }
@@ -173,6 +180,7 @@ export default function WorkOrdersAdminPage() {
       {/* Create modal */}
       <Modal open={showCreate} onClose={() => setShowCreate(false)} title="Nova Ordem de Trabalho" maxWidth={520}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+          <PartyPicker value={parties} onChange={setParties} withTechnician />
           <FormField label="Título" required>
             <input className="input-field" value={form.title} onChange={f('title')} />
           </FormField>
@@ -201,7 +209,7 @@ export default function WorkOrdersAdminPage() {
             <button onClick={() => setShowCreate(false)} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid var(--border)', background: 'none', color: 'var(--slate)', cursor: 'pointer', fontSize: 13 }}>
               Cancelar
             </button>
-            <button onClick={handleCreate} disabled={isPending || !form.title} className="btn-primary" style={{ fontSize: 13, padding: '8px 20px' }}>
+            <button onClick={handleCreate} disabled={isPending || !form.title || !parties.clientId || !parties.companyId} className="btn-primary" style={{ fontSize: 13, padding: '8px 20px' }}>
               {isPending ? 'A criar...' : 'Criar OT'}
             </button>
           </div>

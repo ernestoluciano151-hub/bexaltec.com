@@ -136,7 +136,7 @@ export function TicketsClient({ tickets, sessionId }: { tickets: Ticket[]; sessi
 
       {/* New Ticket Modal */}
       <Modal open={showNew} onClose={() => setShowNew(false)} title="Abrir Novo Ticket"
-        subtitle="A nossa equipa técnica responde em até 4 horas.">
+        subtitle="A nossa equipa responde durante o horário de expediente. Clientes com contrato têm o tempo de resposta definido no contrato.">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <FormField label="Assunto" required>
             <input className="input-field" value={newTitle} onChange={e => setNewTitle(e.target.value)}

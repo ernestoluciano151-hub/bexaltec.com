@@ -53,7 +53,7 @@ export function RepairsClient({ repairs }: { repairs: Repair[] }) {
     <div>
       <PageHeader
         title="Estado das Reparações"
-        sub="Acompanhe em tempo real o estado das suas reparações no laboratório."
+        sub="Acompanhe o estado das suas reparações no laboratório. A página atualiza ao recarregar."
       />
 
       <div style={{ marginBottom: '1.5rem' }}>
@@ -122,7 +122,7 @@ export function RepairsClient({ repairs }: { repairs: Repair[] }) {
                   )}
                   {repair.totalCost && (
                     <div>
-                      <div style={{ fontSize: 10, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>Custo Estimado</div>
+                      <div style={{ fontSize: 10, color: 'var(--slate)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>Custo</div>
                       <div style={{ fontSize: 12, color: 'var(--green)' }}>{Number(repair.totalCost).toLocaleString('pt-AO')} Kz</div>
                     </div>
                   )}

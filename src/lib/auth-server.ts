@@ -4,9 +4,10 @@
 
 import { SignJWT, jwtVerify } from 'jose'
 import { cookies } from 'next/headers'
+import { cache } from 'react'
 import { db } from './db'
-import { users } from './schema'
-import { eq } from 'drizzle-orm'
+import { users, companies, notifications } from './schema'
+import { eq, sql } from 'drizzle-orm'
 import type { User } from './schema'
 import { JWT_SECRET, JWT_ALGORITHM, SESSION_DURATION } from './jwt-config'
 
@@ -85,12 +86,33 @@ export async function clearSessionCookies() {
   cookieStore.delete('bx_role')
 }
 
-export async function getSession(): Promise<SessionPayload | null> {
+/**
+ * Sessão do pedido actual. O token prova a identidade; o resto (empresa,
+ * perfil, estado) lê-se da base de dados, para que uma alteração feita pelo
+ * administrador — associar a empresa, desactivar a conta — tenha efeito logo,
+ * sem esperar que o token expire. Memorizado por pedido com cache() do React.
+ */
+export const getSession = cache(async (): Promise<SessionPayload | null> => {
   const cookieStore = await cookies()
   const token = cookieStore.get('bx_token')?.value
   if (!token) return null
-  return verifyToken(token)
-}
+  const payload = await verifyToken(token)
+  if (!payload) return null
+
+  try {
+    const [u] = await db
+      .select({ id: users.id, name: users.name, email: users.email, role: users.role, companyId: users.companyId, isActive: users.isActive })
+      .from(users)
+      .where(eq(users.id, payload.id))
+      .limit(1)
+    if (!u || !u.isActive) return null
+    return { id: u.id, name: u.name, email: u.email, role: u.role, companyId: u.companyId }
+  } catch (err) {
+    // Base de dados indisponível: mantém-se o conteúdo do token.
+    console.error('[auth] getSession refresh:', err)
+    return payload
+  }
+})
 
 // ── Auth operations ───────────────────────────────────────────────────────
 export async function loginWithCredentials(email: string, password: string): Promise<{
@@ -165,10 +187,37 @@ export async function registerUser(data: {
         email:        data.email.toLowerCase().trim(),
         passwordHash,
         role:         'client',
-        phone:        data.phone,
+        phone:        data.phone?.trim() || null,
         companyId:    null,
       })
       .returning()
+
+    // A empresa declarada não é associada automaticamente: qualquer pessoa
+    // podia escrever o nome de outra empresa e passar a ver os dados dela.
+    // Os administradores recebem o pedido e associam no ecrã Clientes.
+    const declared = data.company?.trim().slice(0, 160)
+    if (declared) {
+      try {
+        const [match] = await db
+          .select({ id: companies.id, name: companies.name })
+          .from(companies)
+          .where(sql`lower(trim(${companies.name})) = ${declared.toLowerCase()}`)
+          .limit(1)
+        const admins = await db.select({ id: users.id }).from(users).where(eq(users.role, 'admin'))
+        if (admins.length) {
+          await db.insert(notifications).values(admins.map(a => ({
+            userId: a.id,
+            type:   'registration',
+            title:  `Novo registo — associar empresa`,
+            body:   `${newUser.name} (${newUser.email}) indicou a empresa "${declared}".` +
+                    (match ? ` Existe uma empresa com esse nome (#${match.id}).` : ' Não existe nenhuma empresa com esse nome.'),
+            link:   '/admin/clients',
+          })))
+        }
+      } catch (notifyErr) {
+        console.error('[auth] register → notificação admin:', notifyErr)
+      }
+    }
 
     await setSessionCookies(newUser)
 

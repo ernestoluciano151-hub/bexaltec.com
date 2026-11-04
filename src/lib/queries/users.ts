@@ -29,7 +29,7 @@ export const getUserProfile = withCache(
     return user ?? null
   },
   ['user', 'profile'],
-  [CACHE_TAGS.users],
+  [CACHE_TAGS.users, CACHE_TAGS.companies],
   TTL.MEDIUM,
 )
 
@@ -54,7 +54,7 @@ export const getAllUsers = withCache(
       .orderBy(users.name)
   },
   ['users', 'all'],
-  [CACHE_TAGS.users],
+  [CACHE_TAGS.users, CACHE_TAGS.companies],
   TTL.MEDIUM,
 )
 

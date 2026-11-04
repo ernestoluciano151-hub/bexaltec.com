@@ -174,7 +174,7 @@ export function InvoicesClient({ invoices }: { invoices: Invoice[] }) {
             <a href={whatsappLink('Olá Bexaltec, tenho uma questão sobre faturação.')} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--green)', textDecoration: 'none' }}>
               WhatsApp — {CONTACT.phoneDisplay}
             </a>
-            <span style={{ color: 'var(--text2)' }}>Seg–Sex 08h–17h</span>
+            <span style={{ color: 'var(--text2)' }}>Seg–Sex 08h–18h</span>
           </div>
         </div>
       </div>

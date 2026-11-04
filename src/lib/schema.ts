@@ -234,6 +234,22 @@ export const notifications = pgTable('notifications', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
+// ── Numeração sequencial (migração 0003) ──────────────────────────────────
+// Uma linha por série e ano: 'BX-WO-2026', 'FT-2026', … Ver lib/crm.ts.
+export const refSequences = pgTable('ref_sequences', {
+  key:       varchar('key', { length: 40 }).primaryKey(),
+  value:     integer('value').default(0).notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ── Limite de tentativas (migração 0003) ──────────────────────────────────
+export const rateEvents = pgTable('rate_events', {
+  id:        serial('id').primaryKey(),
+  bucket:    varchar('bucket', { length: 40 }).notNull(),
+  key:       varchar('key', { length: 200 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
 // ── Relations ─────────────────────────────────────────────────────────────
 export const usersRelations = relations(users, ({ one, many }) => ({
   company:       one(companies, { fields: [users.companyId], references: [companies.id] }),

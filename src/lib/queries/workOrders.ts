@@ -19,6 +19,8 @@ export const getAllWorkOrders = withCache(
         scheduledAt:   workOrders.scheduledAt,
         completedAt:   workOrders.completedAt,
         createdAt:     workOrders.createdAt,
+        clientId:      workOrders.clientId,
+        companyId:     workOrders.companyId,
         clientName:    users.name,
         companyName:   companies.name,
         technicianId:  workOrders.technicianId,

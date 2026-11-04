@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 const solutions = [
-  { color: '#EF5350', title: 'CCTV & Videovigilância', items: ['Câmeras IP 4K Hikvision/Dahua', 'NVR & DVR geridos', 'Monitoramento remoto 24/7', 'Análise de vídeo com IA', 'Armazenamento em nuvem/local'] },
+  { color: '#EF5350', title: 'CCTV & Videovigilância', items: ['Câmeras IP 4K Hikvision/Dahua', 'NVR & DVR geridos', 'Acesso remoto às imagens, a qualquer hora', 'Análise de vídeo com IA', 'Armazenamento em nuvem/local'] },
   { color: '#EF5350', title: 'Controlo de Acessos', items: ['Biométrico (impressão digital/facial)', 'Cartões RFID e QR code', 'Portões e cancelas automáticas', 'Integração com CCTV', 'ZKTeco & HID'] },
   { color: '#EF5350', title: 'Alarmes & Intrusão', items: ['Sensores PIR e volumétricos', 'Painéis de alarme Paradox/DSC', 'Sirenes e flash estroboscópico', 'Notificação por SMS/App', 'Monitoramento central'] },
   { color: '#EF5350', title: 'Deteção de Incêndio', items: ['Detetores de fumo e calor', 'Painéis de incêndio endereçáveis', 'Sprinklers e supressão', 'Integração com evacuação', 'Certificação ANAC'] },
@@ -68,7 +68,7 @@ export default function SecurityPage() {
               {[
                 { n: 'CCTV IP', l: 'Hikvision · Dahua' },
                 { n: 'Turnkey', l: 'Projeto a entrega' },
-                { n: '24/7', l: 'Monitoramento Disponível' },
+                { n: 'Remoto', l: 'Acesso às imagens' },
                 { n: '11', l: 'CAEs Licenciadas' },
               ].map((s, i) => (
                 <div key={i} style={{ padding: '1.5rem', background: 'rgba(239,83,80,0.04)', border: '1px solid rgba(239,83,80,0.14)', borderRadius: 14, textAlign: 'center' }}>
