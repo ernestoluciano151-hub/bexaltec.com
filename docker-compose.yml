@@ -1,0 +1,94 @@
+# ─── Bexaltec · produção no VPS ─────────────────────────────────────────────
+# Serviços: db (PostgreSQL) · web (Next.js) · caddy (HTTPS) · backup (pg_dump)
+# e migrate (corre as migrações SQL e termina).
+#
+#   docker compose run --rm migrate      # aplicar migrações pendentes
+#   docker compose up -d --build         # compilar e arrancar
+#
+# Variáveis: ficheiro .env ao lado deste (ver deploy/env.example). Nunca no git.
+
+name: bexaltec
+
+x-db-env: &db-env
+  POSTGRES_DB: ${POSTGRES_DB:-bexaltec}
+  POSTGRES_USER: ${POSTGRES_USER:-bexaltec}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment: *db-env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    shm_size: 256mb
+    # Sem "ports": a base só é acessível dentro da rede do Compose.
+
+  migrate:
+    image: postgres:17-alpine
+    profiles: ["tools"]            # não arranca com "up"; só com "run"
+    environment: *db-env
+    volumes:
+      - ./src/db/migrations:/migrations:ro
+      - ./deploy/scripts:/scripts:ro
+    entrypoint: ["sh", "/scripts/migrate.sh"]
+    depends_on:
+      db: { condition: service_healthy }
+
+  web:
+    build: .
+    image: bexaltec-web:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-bexaltec}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-bexaltec}
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://www.bexaltec.com}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_TO: ${MAIL_TO:-}
+    depends_on:
+      db: { condition: service_healthy }
+    # Sem "ports": só o Caddy lhe chega (por isso o X-Real-IP é de confiança).
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-www.bexaltec.com}
+      APEX_DOMAIN: ${APEX_DOMAIN:-bexaltec.com}
+      CADDY_TLS: ${CADDY_TLS:-/certs/origin.pem /certs/origin-key.pem}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [web]
+
+  backup:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      <<: *db-env
+      BACKUP_TIME_UTC: ${BACKUP_TIME_UTC:-02:00}   # 03:00 em Luanda
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      BACKUP_KEEP_WEEKS: ${BACKUP_KEEP_WEEKS:-8}
+    volumes:
+      - ./deploy/scripts:/scripts:ro
+      - ./backups:/backups
+    entrypoint: ["sh", "/scripts/backup-loop.sh"]
+    depends_on:
+      db: { condition: service_healthy }
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

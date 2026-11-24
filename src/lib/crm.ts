@@ -70,11 +70,16 @@ export function normalizeEmail(v: unknown): string | null {
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 // ── Limite de tentativas ──────────────────────────────────────────────────
-/** IP do cliente (na Vercel, x-forwarded-for é definido pela plataforma). */
+/**
+ * IP do visitante. Só se confia em X-Real-IP, que o Caddy reescreve sempre
+ * com o IP real (o CF-Connecting-IP, quando o pedido vem da Cloudflare; o IP
+ * da ligação, nos outros casos). O x-forwarded-for NÃO serve: o primeiro valor
+ * é escrito pelo próprio visitante e bastaria mudá-lo para fugir ao limite de
+ * tentativas. A aplicação não tem porta exposta: só o Caddy lhe chega.
+ */
 export async function clientIp(): Promise<string> {
   const h = await headers()
-  const fwd = h.get('x-forwarded-for')
-  return (fwd?.split(',')[0] ?? h.get('x-real-ip') ?? 'unknown').trim().slice(0, 64) || 'unknown'
+  return (h.get('x-real-ip') ?? '').trim().slice(0, 64) || 'unknown'
 }
 
 /** Quantas tentativas houve nesta janela (minutos) para este bucket/chave. */

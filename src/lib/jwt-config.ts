@@ -12,7 +12,7 @@ if (!secret || secret.length < 32) {
   throw new Error(
     'JWT_SECRET não está definido ou tem menos de 32 caracteres. ' +
     'Gere uma chave com "openssl rand -base64 32" e defina-a em .env.local ' +
-    'e em Vercel → Settings → Environment Variables.'
+    '(desenvolvimento) ou no .env do servidor.'
   )
 }
 

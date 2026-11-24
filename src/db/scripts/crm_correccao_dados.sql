@@ -1,9 +1,10 @@
 -- ─── Bexaltec · Correcção de dados do CRM ──────────────────────────────────
--- Executar no editor SQL do Neon DEPOIS da migração 0003_crm_quick_fixes.sql.
+-- Executar DEPOIS da migração 0003_crm_quick_fixes.sql. No servidor:
+--   docker compose exec -T db psql -U bexaltec -d bexaltec  (e colar bloco a bloco)
 -- Correr bloco a bloco, pela ordem. Os blocos 1 e 2 corrigem sozinhos o que
 -- tem uma resposta única; o bloco 3 mostra o que sobra; os blocos 4 e 5 são
 -- modelos para fundir duplicados depois de decidir à mão.
--- Recomendado: criar antes um branch de segurança no Neon (Branches → Create).
+-- Recomendado: fazer antes uma cópia — docker compose exec backup sh /scripts/backup.sh
 
 
 -- ═══ BLOCO 1 · Completar a empresa a partir do cliente ═════════════════════
